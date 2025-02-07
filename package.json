@@ -1,0 +1,20 @@
+{
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "watch": "tsc --watch",
+    "dev": "nodemon dist/server"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "inquirer": "^12.4.1",
+    "nodemon": "^3.1.9",
+    "openai": "^4.83.0",
+    "uuid": "^11.0.5"
+  }
+}
