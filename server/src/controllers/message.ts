@@ -29,7 +29,12 @@ if (!content) {
   res.status(404).json({message:"content does not exist"})
 return
 }
-
+const isMember=await (GroupModel as any).isMember(currentUser.id,groupId)
+console.log(isMember)
+if (!isMember) {
+  res.status(404).json({message:"user is not a member"})
+return
+}
     const newMessage = await MessageModel.create({
         sender:currentUser,
         content,
@@ -38,7 +43,8 @@ return
       { _id: groupId },  
       { 
         $push: { messages: newMessage._id },
-        $set: { lastMessage: newMessage._id }  
+        $set: { lastMessage: newMessage._id } ,
+
       }
     );
      res.status(201).json(updatedGroup);
@@ -63,7 +69,13 @@ if (!content) {
   res.status(404).json({message:"content does not exist"})
 return
 }
-
+const isMember=await (ChatSchema as any).isMember(currentUser,chatId)
+console.log({currentUser:currentUser,chatId})
+console.log(isMember)
+if (!isMember) {
+  res.status(404).json({message:"user is not a member"})
+return
+}
 const newMessage = await MessageModel.create({
   sender:currentUser,
   content,

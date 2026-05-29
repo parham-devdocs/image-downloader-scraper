@@ -146,7 +146,17 @@ console.log(file)
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-     res.json({ message: "registered successful" ,newUser});
+     res.json({ message: "registered successful" ,
+      user:{username:newUser.username
+        ,email:newUser.email
+        ,attachment:file ? {
+        filename: file.filename,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        url: `/uploads/${file.filename}`
+      } : null }
+     });
 
   } catch (error:any) {
     if (uploadedFilePath && fs.existsSync(uploadedFilePath)) {

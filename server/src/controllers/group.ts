@@ -5,29 +5,47 @@ import { UserModel } from "../model/user";
 import { MessageModel } from "../model/message";
 import {AttachmentModel}  from "../model/attachment";
 import fs from 'fs'
-export async function createGroup(  
-    req: Request<any, any,Group>,
-    res: Response) {
-  const  {name,description}=req.body
-  const adminId=(req as any).user
+export async function createGroup(
+  req: Request<any, any, Group>,
+  res: Response
+) {
+  const { name, description } = req.body;
+  const adminId = (req as any).user; // Get admin ID from auth middleware
+  
   try {
-    const group=await GroupModel.create({
-        name,
-        description,
-        members:[],
-        admin:adminId
-      })
-      console.log((req as any).user)
-      const populatedGroup=await GroupModel.findById(group._id).populate("admin","username email").populate("members","username email")
-      res.status(201).json({populatedGroup})
-  } catch (error:any) {
-    res.status(400).json({message:error.message})
-
+      // Create group with admin as both admin and member
+      const group = await GroupModel.create({
+          name,
+          description,
+          admin: adminId,
+          members: [adminId], // ✅ Add admin to members array directly
+          avatarURL: req.body.avatarURL || "", // Optional
+          messages: [],
+          lastMessage: null,
+          attachment: null
+      });
+      
+      console.log("Admin ID:", adminId);
+      console.log("Created group:", group);
+      
+      // Populate admin and members with their details
+      const populatedGroup = await GroupModel.findById(group._id)
+          .populate("admin", "username email attachment")
+          .populate("members", "username email attachment");
+      
+      res.status(201).json({ 
+          success: true,
+          group: populatedGroup 
+      });
+      
+  } catch (error: any) {
+      console.error("Error creating group:", error);
+      res.status(400).json({ 
+          success: false,
+          message: error.message 
+      });
   }
-
-
 }
-
 export async function getMembershipStatus(
   req: Request<any, any, User, any>,
   res: Response

@@ -1,12 +1,15 @@
 "use client"
 
 import { ChatBubbleType, ConversationInfoResponse, Message, User, UserStatus } from '@/types'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useEffectEvent } from 'react'
 import { useParams } from 'next/navigation'
 import { getMessagesInConversation } from '../actions/messages'
 import Loader from './loader'
 import ChatHeader from './ChatHeader'
 import MessageBubble from './messageBubble'
+import { BsEmojiGrin } from 'react-icons/bs'
+import { BiCamera, BiMicrophone, BiSend } from 'react-icons/bi'
+import { CgAttachment } from 'react-icons/cg'
 
 const ChatPage = () => {
   const [messages, setMessages] = useState<ConversationInfoResponse | null>(null)
@@ -17,15 +20,38 @@ const ChatPage = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<null | string>(null);
 
-  const { id } = useParams()
+  const { id,conversationType } = useParams()
   
   const userStatus: UserStatus = {
     username: "l,l;l",
     presence: "online",
     activity: "typing"
+  }///getting data for messages
+
+
+  ////// refetching data
+const loadData = async () => {
+  try {
+    const response = await getMessagesInConversation(String(id))
+    console.log(response)
+    if (response.status === 201) {
+      setMessages(response)
+    }
+  } catch (error) {
+    console.error("Failed to load messages:", error)
+  } finally {
+    setIsLoading(false)
   }
-///getting data for messages
-  useEffect(() => {
+}
+
+  useEffectEvent(() => {
+   console.log("event")
+
+    loadData()
+  })
+
+  ///getting data for messages - initial fetch
+  useEffect(()=>{
     const loadData = async () => {
       try {
         const response = await getMessagesInConversation(String(id))
@@ -39,9 +65,8 @@ const ChatPage = () => {
         setIsLoading(false)
       }
     }
-
     loadData()
-  }, [id])
+  },[id])
 
   ////////  getting user data from local storage
 
@@ -64,6 +89,12 @@ useEffect(() => {
   getUserData();
 }, [id]);
 
+/////// on change handler
+function onChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
+  e.preventDefault()
+  setInputValue(e.target.value)
+  console.log(inputValue)
+}
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -106,55 +137,40 @@ useEffect(() => {
           </div>
 
           {/* Beautiful Input Section */}
-          <div className="border-t border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-end gap-3">
-                {/* Attachment Button */}
-                <button className="flex-shrink-0 text-gray-500 hover:text-purple-600 transition-colors duration-200">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
-                </button>
+          <div className="border-t w-full border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-4">
+  <div className="w-full mx-auto">
+    <div className="flex items-center gap-3 w-full">
+      {/* Emoji Button */}
+     
 
-                {/* Text Input */}
-                <div className="flex-1 relative">
-                  <textarea
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Type a message..."
-                    rows={1}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 focus:bg-white transition-all duration-200 resize-none"
-                    style={{ maxHeight: "120px" }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        // Handle send message here
-                      }
-                    }}
-                  />
-                </div>
-
-                {/* Emoji Button */}
-                <button className="flex-shrink-0 text-gray-500 hover:text-yellow-500 transition-colors duration-200">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </button>
-
-                {/* Send Button */}
-                <button className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </button>
-              </div>
-              
-              {/* Typing Indicator (optional) */}
-              <div className="mt-2 h-5">
-                {/* You can add typing indicator here */}
-              </div>
-            </div>
-          </div>
+      {/* Text Input - takes remaining width */}
+      <div className="flex-1 min-w-0">
+        <textarea
+          value={inputValue}
+          onChange={(e) => onChangeHandler(e)}
+          placeholder="Type a message..."
+          rows={1}
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 focus:bg-white transition-all duration-200 resize-none"
+        
+        />
+      </div>
+      <button type="submit" onClick={loadData} className="  mb-1.5 bg-violet-600  text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+       <BiSend/>
+      </button>
+      <button className=" mb-1.5 bg-violet-600  text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+       <BiMicrophone/>
+      </button>
+      <button className=" mb-1.5 bg-violet-600  text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+       <BiCamera/>
+      </button>
+      <button className=" mb-1.5 bg-violet-600  text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+       <CgAttachment/>
+      </button>
+      {/* Send Button */}
+     
+    </div>
+  </div>
+</div>
         </>
       )}
     </div>

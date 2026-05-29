@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { UserModel } from "../model/user";
 import { ChatSchema } from "../model/chat";
-import { decodeJWT } from "../util/jwt";
 import { io } from "../socket-server";
-import { MessageModel } from "../model/message";
+
 interface MyQuery {
   targetUser: string;
 }
@@ -36,6 +35,7 @@ export async function JoinChatRoom(
       res.status(404).json({ message: "target user not found" });
       return;
     }
+
 
     console.log("--- [JoinChatRoom] Stage 3: Chat Room Check ---");
     let chat = await (ChatSchema as any).findDirectChat(currentUser._id, targetUser._id);
