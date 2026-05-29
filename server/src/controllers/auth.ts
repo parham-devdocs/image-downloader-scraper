@@ -7,6 +7,8 @@ import {
 } from "../util/jwt";
 import { hash, compare } from "../util/hash";
 import { UserModel } from "../model/user";
+import upload from "../middlewares/multer";
+import fs from "fs";
 
 export async function login(req: Request<any, any, User>, res: Response) {
   const { body } = req;
@@ -81,31 +83,24 @@ export async function login(req: Request<any, any, User>, res: Response) {
 }
 
 
-
 export async function register(req: Request<any, any, User>, res: Response) {
-  console.log("➡️ ENTER register()");
-  console.log("Request body:", req.body);
-  console.log("Cookies:", req.cookies);
 
-  const { body } = req;
-
+  const { body,file } = req;
   const accessToken = generateAccessToken(body.email);
   const refreshToken = generateRefreshToken(body.email);
-
-  console.log("Generated tokens:", { accessToken, refreshToken });
+  let uploadedFilePath;
+if (file) {
+  uploadedFilePath=file.path
+}
 
   try {
-    console.log("🔍 Checking existing username...");
     const existingUsername = await UserModel.findOne({
       username: body.username,
     });
-    console.log("Existing username result:", existingUsername);
 
-    console.log("🔍 Checking existing email...");
     const existingEmail = await UserModel.findOne({
       email: body.email,
     });
-    console.log("Existing email result:", existingEmail);
 
     if (existingUsername || existingEmail) {
       console.log("❌ User already exists — aborting");
@@ -113,22 +108,29 @@ export async function register(req: Request<any, any, User>, res: Response) {
        return
     }
 
-    console.log("🔐 Hashing password...");
-    const hashedPassword = await hash(body.password);
 
-    console.log("📝 Creating new user in MongoDB...");
+
+
+    const hashedPassword = await hash(body.password);
+console.log(file)
     const newUser = await UserModel.create({
       password: hashedPassword,
       userId: body.userId,
       username: body.username,
       email: body.email,
       refreshToken,
-    });
+        attachment:file ? {
+          filename: file.filename,
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          size: file.size,
+          url: `/uploads/${file.filename}`
+        } : null
+    }
+      );    
 
-    console.log("✅ User created successfully:", newUser);
     res.setHeader("user", JSON.stringify(newUser.toObject())); 
 
-    console.log("🍪 Setting accessToken cookie...");
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -136,7 +138,6 @@ export async function register(req: Request<any, any, User>, res: Response) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    console.log("🍪 Setting refreshToken cookie...");
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -144,10 +145,13 @@ export async function register(req: Request<any, any, User>, res: Response) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    console.log("📤 Sending success response...");
      res.json({ message: "registered successful" ,newUser});
 
   } catch (error:any) {
+    if (uploadedFilePath && fs.existsSync(uploadedFilePath)) {
+      fs.unlinkSync(uploadedFilePath);
+      console.log("🗑️ Deleted uploaded file due to error");
+    }
     console.error("🔥 ERROR in register():", error);
     console.error("Stack trace:", error?.stack);
 

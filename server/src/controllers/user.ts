@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { UserModel } from "../model/user";
-
+import { AttachmentModel } from "../model/attachment";
+import fs from "fs";
+import path from "path";
 interface MyQuery {
   userId: string;
 }
@@ -25,4 +27,7 @@ export async function findUsersWithUserId(
      res.status(500).json({ message: "Server error" });
   }
 }
+
+
+
 

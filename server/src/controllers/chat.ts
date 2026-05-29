@@ -75,13 +75,23 @@ export async function getMessagesInChat(
 ) {
   try {
     const chatId=req.params.chatId
-    console.log(chatId)
-   const chatMessages=await MessageModel.find({chatId}).populate("sender","username email").sort({createdAt:1});
-   if (!chatMessages || chatMessages.length===0) {
+
+    const chat = await ChatSchema.findById(chatId)
+    .select("messages")
+    .populate({
+      path: 'messages', 
+      options:{sort:{createAt:1}} ,    
+      populate: {
+        path: 'sender',       
+        model: 'User'        
+      }
+    }).select("messages")
+    .exec();
+   if (!chat || chat.length===0) {
     res.status(404).json({message:"no chat found"})
     return
    }
-     res.status(201).json(chatMessages);
+     res.status(201).json(chat);
      return
   } catch (error) {
     console.error("Find users error:", error);

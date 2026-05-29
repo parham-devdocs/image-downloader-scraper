@@ -1,4 +1,4 @@
-import { ChatBubbleType } from "@/types";
+import { ChatBubbleType, ConversationInfoResponse } from "@/types";
 import apiClient from "../axios";
 import { notFound } from "next/navigation";
 
@@ -19,26 +19,36 @@ export async function postMessage(groupId: string, content?: string) {
 
 
 
-export async function getMessages(groupId: string) {
+
+export async function getMessagesInConversation(
+  id: string
+): Promise<ConversationInfoResponse> {
   try {
-    const response = await apiClient.get<ChatBubbleType[]>(
-      `/message/${groupId}`
-    );
-    // If the API returns empty or a 404 status, trigger Next.js 404 page
-    if (!response.data || response.data.length === 0) {
-      console.log({response:response.data})
-      notFound(); // This throws an error internally to render not-found.js
+    const result = await Promise.any([
+      apiClient.get<ChatBubbleType>(
+        `chat/${id}/messages`
+      ),
+      apiClient.get<ChatBubbleType>(
+        `group/${id}/messages`
+      ),
+
+    ]);    
+
+    if (!result.data.messages || result.data.messages.length === 0) {
+      return {
+        status: result.status,
+        message: "message not found",
+      };
     }
 
-    return response.data; // ✅ Return data when found
-
-  } catch (error) {
+    return {
+      status: result.status,
+      message: result.data.messages,
+    };  } catch (error) {
     console.error("Error fetching messages:", error);
-    
-    // Option 1: Return empty array for graceful UI handling
-    return [];
-    
-    // Option 2: Trigger 404 for missing group (uncomment if preferred)
-    // notFound();
+    return {
+      status: 500,
+      message: "no chat found",
+    };
   }
 }

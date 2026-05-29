@@ -40,6 +40,10 @@ const groupSchema = new mongoose.Schema<Group>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message"
     },
+    attachment:{
+       type: mongoose.Schema.Types.ObjectId,
+      ref: "Attachment"
+    }
   },
   
   {

@@ -1,16 +1,15 @@
 import React from "react";
 import Avatar from "./avatar";
-import { type ChatBubbleType } from "@/types";
-export type ChatBubbleProps = ChatBubbleType & {
-  isOwn: boolean;
-};
-const ChatBubble = ({ content, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps) => {
+import { Message } from "@/types";
+ type ChatBubbleProps  =  Message & {isOwn:boolean}
+
+const ChatBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps ) => {
   return (
     <div className={`w-full flex ${isOwn ? "justify-start" : "justify-end"} my-8`}>
       
       <div className={`flex items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
 
-        <Avatar name={sender.username} avatarURL={imageAvatarURL} />
+        <Avatar  url={imageAvatarURL?.url} filename={imageAvatarURL?.filename} />
 
         <div className="flex flex-col max-w-[70%]">
           

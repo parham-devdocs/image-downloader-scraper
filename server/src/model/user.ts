@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema<User>({
   username: {
       type:String,
       required:true,
-      trim:true
+      trim:true,
+      
   },
   userId: {
     type: String,
@@ -26,10 +27,10 @@ const userSchema = new mongoose.Schema<User>({
     type: String,
     required: true,
   },
-  refreshToken: {
-    type: String,
-    required: false,
-  }
+  attachment:{
+    type:[mongoose.Types.ObjectId],
+    ref:"Attachment"
+},
 },
 {timestamps:true}
 );

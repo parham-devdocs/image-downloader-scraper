@@ -19,6 +19,7 @@ export type RegisterState = {
     refreshToken: string;
     createdAt: string; // Or Date if you parse it
     updatedAt: string;
+    attachment?:Attachment[]
     __v: number;
   }
   export interface MembershipStatus{
@@ -41,32 +42,48 @@ export type RegisterState = {
     userId:string
   }
 
-  export type Avtar= {
-    name:string,
-    avatarURL?:string
-  }
-  
 
-  export type ChatBubbleType=  {
-    group:string
+export type Attachment={
+  filename?:string,
+  originalName?:string,
+  mimeType?:string,
+  size?:number,
+  url?:string
+  
+}
+  
+  export type Message={
+    _id:string
     content:string
-    sender: {
-       _id: string,
-    username: string,
-    email: string
-  }
-    imageAvatarURL?:string
-    date:string
+
+    sender: User
+    imageAvatarURL?:Attachment
     seen:boolean
     createdAt: string
 
+  
   }
+
+  export type PresenceStatus = "online" | "last_seen_recently" | "offline";
+  export type ActivityStatus = "typing" | "idle";
+  
+  export type UserStatus = {
+    username: string;
+    presence: PresenceStatus;
+    activity?: ActivityStatus; // e.g. "typing" when applicable
+  };
+  
+  export type ChatBubbleType = {
+    _id: string;
+    messages: Message[];
+  };
+  
   export type ChatHeaderProps = {
     name: string;
-    avatar: string;
-  status:"online"|"las seen recently"|"typing"
+    pic?:Attachment
+    status: UserStatus;
   };
-
+  
   export interface ChatInfoResponse {
 
       _id: string;
@@ -78,5 +95,11 @@ export type RegisterState = {
        avatarURL?:any
        unreadCount:number
   }
+
+  export  type ConversationInfoResponse =
+  | ChatBubbleType
+  | { status: number; message: Message[] | string };
+
+  
   
   

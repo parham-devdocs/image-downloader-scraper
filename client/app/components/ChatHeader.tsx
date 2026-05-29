@@ -1,32 +1,23 @@
 import { ChatHeaderProps } from "@/types";
-import Avatar from "./avatar";
+import Image from "next/image";
+import personPic from "../../public/person.jpeg";
 
 
-
-export default function ChatHeader({ name, avatar, status }: ChatHeaderProps) {
+export default function ChatHeader({ name, pic, status }: ChatHeaderProps) {
   return (
-    <div className="bg-violet-600 text-white px-4 py-3 flex items-center gap-3 shadow-md m-2 rounded-xl">
-
-      <div className="relative">
-        <Avatar name={name} avatarURL={avatar} />
-
-        {status==="online" && (
-          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-violet-600 rounded-full"></span>
-        )}
-     {status==="las seen recently" && (
-          <span className="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 border-2 border-violet-600 rounded-full"></span>
+    <header className="flex items-center p-4 bg-white border-b">
+      <Image src={pic?.url ||  personPic} alt={name} className="w-10 h-10 rounded-full" />
+      <div className="ml-3">
+        <h1 className="font-bold">{name}</h1>
+        {/* Only show status if it exists */}
+        {status && (
+          <p className="text-sm text-gray-500">
+            {status.activity === "typing" 
+              ? `${status.username} is typing...` 
+              : status.presence.replace(/_/g, ' ')}
+          </p>
         )}
       </div>
-
-      <div className="flex flex-col leading-tight">
-        <span className="font-semibold text-sm">{name}</span>
-
-        <span className="text-xs text-violet-200">
-          {status==="online" && "online"}
-          {status==="typing" && <span className=" animate-pulse">typing ...</span> }
-
-        </span>
-      </div>
-    </div>
+    </header>
   );
 }

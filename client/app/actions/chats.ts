@@ -1,4 +1,4 @@
-import { ChatInfoResponse } from "@/types";
+import {  ChatInfoResponse } from "@/types";
 import apiClient from "../axios";
 
 
@@ -17,3 +17,6 @@ export async function getChatList(cookie?: string) {
         return  {status:500,message:error}
     }
 }
+
+
+

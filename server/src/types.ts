@@ -9,7 +9,7 @@ export interface User{
     email:string
     password:string
     refreshToken?:string
-    accessToken?:string
+    attachment?:any
 }
 
 export interface Group{
@@ -19,6 +19,8 @@ export interface Group{
     members:any[]
  avatarURL?:any
  messages:any
+ attachment?:any
+
  lastMessage?:any
 
 
@@ -33,6 +35,13 @@ export interface Message {
  
 }
 
+export interface Attachment{
+    filename:string
+    originalName:string
+    mimeType:string
+    size:number
+    url:string
+}
 
 export interface Chat {
     id: string;
@@ -42,6 +51,8 @@ export interface Chat {
     avatarURL?:any
     description:string
     messages:any
+    attachment?:any
+
 
   
 }

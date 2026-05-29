@@ -3,8 +3,8 @@ import { Group, User } from "../types";
 import { GroupModel } from "../model/group";
 import { UserModel } from "../model/user";
 import { MessageModel } from "../model/message";
-
-
+import {AttachmentModel}  from "../model/attachment";
+import fs from 'fs'
 export async function createGroup(  
     req: Request<any, any,Group>,
     res: Response) {
@@ -318,5 +318,95 @@ export async function getMessagesInGroup(
   } catch (error) {
     console.error("Find users error:", error);
      res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+
+export async function setProfilePicForGroup(
+  req: Request<any, any, any, any>,
+  res: Response
+) {
+  try {
+    const { groupId } = req.params;
+    const { file } = req;
+    const userId = (req as any).user?._id; // Assuming you have auth middleware
+
+    // ✅ Validate file exists
+    if (!file) {
+       res.status(400).json({ 
+        success: false, 
+        error: "Profile picture is required!" 
+      });
+      return
+    }
+
+    // ✅ Validate group exists
+    const group = await GroupModel.findById(groupId);
+    if (!group) {
+      res.status(404).json({ 
+        success: false, 
+        error: "Group not found" 
+      });
+      return
+    }
+const isUserAdmin=await (GroupModel as any).isUserAdmin(userId,groupId)
+    // ✅ Check if user is admin (optional - for security)
+    if (!isUserAdmin) {
+       res.status(403).json({ 
+        success: false, 
+        error: "Only group admin can change the profile picture" 
+      });
+      return
+    }
+
+    // ✅ Create attachment document
+    const newAttachment = await AttachmentModel.create({
+      filename: file.filename,
+      originalName: file.originalname,
+      mimeType: file.mimetype,
+      size: file.size,
+      url: `/uploads/${file.filename}`
+    });
+
+    // ✅ Update group with new attachment
+    const updatedGroup = await GroupModel.findByIdAndUpdate(
+      groupId,
+      { 
+        $set: { 
+          attachment: newAttachment._id  // Store the ObjectId reference
+        } 
+      },
+      { new: true } // Return updated document
+    ).populate('attachment'); // Populate to get attachment details
+
+    console.log("✅ Group avatar updated:", updatedGroup?._id);
+
+     res.status(200).json({
+      success: true,
+      message: "Group profile picture updated successfully",
+      group: updatedGroup
+    });
+    return
+
+  } catch (error: any) {
+    console.error("❌ Error in setProfilePicForGroup:", error);
+    
+    // If file was uploaded but something failed, delete it
+    if (req.file && req.file.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+        console.log("🗑️ Deleted orphaned file");
+      } catch (unlinkError) {
+        console.error("Failed to delete file:", unlinkError);
+      }
+    }
+    
+     res.status(500).json({ 
+      success: false, 
+      error: error.message || "Failed to set group profile picture" 
+    });
+    return
   }
 }
