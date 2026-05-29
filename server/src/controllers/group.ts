@@ -317,8 +317,7 @@ export async function getMessagesInGroup(
       populate: {
         path: 'sender',       
         model: 'User'   ,
-        select:"username isAdmin" 
-            
+        select:"username isAdmin"              
       }
     }).select("messages")
     .exec();

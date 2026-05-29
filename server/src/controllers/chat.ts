@@ -83,12 +83,13 @@ export async function getMessagesInChat(
       options:{sort:{createAt:1}} ,    
       populate: {
         path: 'sender',       
-        model: 'User'        
+        model: 'User' ,
+        select:"username isAdmin"     
       }
-    }).select("messages")
+    })
     .exec();
    if (!chat || chat.length===0) {
-    res.status(404).json({message:"no chat found"})
+    res.status(404).json({message:[]})
     return
    }
      res.status(201).json(chat);
