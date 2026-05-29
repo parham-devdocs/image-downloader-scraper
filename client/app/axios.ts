@@ -6,16 +6,7 @@ const apiClient = axios.create({
   timeout: 10000,
 });
 
-// ✅ Add this request interceptor to debug cookies
-apiClient.interceptors.request.use(
-  (config) => {
-    config.withCredentials = true;
-    console.log('📤 Request to:', config.url);
-    console.log('📤 With credentials:', config.withCredentials);
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -28,7 +19,6 @@ apiClient.interceptors.response.use(
     }
 
     const serverMessage = error.response?.data?.message || "Something went wrong";
-    console.error(`[Axios] ❌ ${serverMessage}`);
     return Promise.reject(error);
   }
 );

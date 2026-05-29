@@ -2,10 +2,10 @@ import { ChatInfoResponse } from "@/types";
 import apiClient from "../axios";
 
 
-export async function getGroups(cookie?: string) {
+export async function getChatList(cookie?: string) {
     try {
         const response = await apiClient.get<ChatInfoResponse[]>(
-            `http://localhost:5000/api/group`,
+            `/chat/chatList`,
             {
                 headers: cookie ? {
                     'Cookie': `accessToken=${cookie}`

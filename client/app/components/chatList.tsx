@@ -2,17 +2,22 @@ import ChatItem from './chatItem';
 import ChatListFooter from './chatListFooter';
 import ChatListHeader from './chatListHeader';
 import PersonPic from "../../public/person.jpeg";
-import { ChatRoomResponse } from '@/types';
+import { ChatInfoResponse } from '@/types';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { getGroups } from '../actions/groups';
+import { getChatList } from '../actions/chats';
+import { notFound } from 'next/navigation';
 
 export default async function GroupList() {
   const cookie = await (await cookies()).get("accessToken")?.value;
-  const result = await getGroups(cookie) 
+  const result = await getChatList(cookie) 
   
+  if (!result || result.status===404) {
+    console.log("not found")
+    return notFound()
+  }
   // Handle error responses
-  if (!result || result.status === 404 || result.status === 500 || result.status === 401) {
+  if ( result.status === 404 || result.status === 500 || result.status === 401) {
     const errorMessage = result?.message ? String(result.message) : "Failed to load groups";
     const statusCode = result?.status || "Unknown";
     
@@ -42,11 +47,11 @@ export default async function GroupList() {
   const groupsArray = Array.isArray(groups) ? groups : [];
   
   return (
-    <div className='w-full border-r-4 border-r-violet-600'>
+    <div className=' border-r-4 border-r-violet-600 w-72'>
       <ChatListHeader />
       <div className='max-h-[542px] overflow-x-auto'>
         {groupsArray.length > 0 ? (
-          groupsArray.map((chat: ChatRoomResponse, index: number) => (
+          groupsArray.map((chat: ChatInfoResponse, index: number) => (
             <ChatItem
               key={chat._id || index}
               _id={chat._id}
