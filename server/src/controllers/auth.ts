@@ -63,7 +63,8 @@ export async function login(req: Request<any, any, User>, res: Response) {
       message: "login successful", 
       accessToken,
       user: {
-        id: user._id,
+        
+        _id: user._id,
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin

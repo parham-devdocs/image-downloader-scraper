@@ -3,7 +3,7 @@ import Avatar from "./avatar";
 import { Message } from "@/types";
  type ChatBubbleProps  =  Message & {isOwn:boolean}
 
-const ChatBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps ) => {
+const MessageBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps ) => {
   return (
     <div className={`w-full flex ${isOwn ? "justify-start" : "justify-end"} my-8`}>
       
@@ -47,4 +47,4 @@ const ChatBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: C
   );
 };
 
-export default ChatBubble;
+export default MessageBubble

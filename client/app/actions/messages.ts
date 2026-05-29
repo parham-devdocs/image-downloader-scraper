@@ -34,13 +34,7 @@ export async function getMessagesInConversation(
 
     ]);    
 
-    if (!result.data.messages || result.data.messages.length === 0) {
-      return {
-        status: result.status,
-        message: "message not found",
-      };
-    }
-
+  
     return {
       status: result.status,
       message: result.data.messages,
@@ -48,7 +42,7 @@ export async function getMessagesInConversation(
     console.error("Error fetching messages:", error);
     return {
       status: 500,
-      message: "no chat found",
+      message:[]
     };
   }
 }

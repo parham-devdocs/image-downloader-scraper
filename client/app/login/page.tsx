@@ -53,10 +53,9 @@ const LoginPage = () => {
 
     try {
       const response = await apiClient.post<LoginResponse>("/auth/login", formData);
-
+localStorage.setItem("user",JSON.stringify(response.data.user))
       console.log(response.data);
 // ✅ Correct way to store an object
-console.log(localStorage.setItem("user", JSON.stringify(response.data.user)))
 
       router.push("/");
     } catch (error: any) {

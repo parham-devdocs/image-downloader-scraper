@@ -308,9 +308,22 @@ export async function getMessagesInGroup(
 ) {
   try {
     const groupId=req.params.groupId
-   const groupMessages=await MessageModel.find({groupId}).populate("sender","username email").sort({createdAt:1});
-   if (!groupMessages || groupMessages.length===0) {
-    res.status(404).json({message:"no message found"})
+
+    const groupMessages = await GroupModel.findById(groupId)
+    .select("messages")
+    .populate({
+      path: 'messages', 
+      options:{sort:{createAt:1}} ,    
+      populate: {
+        path: 'sender',       
+        model: 'User'   ,
+        select:"username isAdmin" 
+            
+      }
+    }).select("messages")
+    .exec();
+   if (!groupMessages) {
+    res.status(404).json([])
     return
    }
      res.status(201).json(groupMessages);
@@ -320,7 +333,6 @@ export async function getMessagesInGroup(
      res.status(500).json({ message: "Server error" });
   }
 }
-
 
 
 

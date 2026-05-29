@@ -79,7 +79,6 @@ export type Attachment={
   };
   
   export type ChatHeaderProps = {
-    name: string;
     pic?:Attachment
     status: UserStatus;
   };
@@ -97,8 +96,7 @@ export type Attachment={
   }
 
   export  type ConversationInfoResponse =
-  | ChatBubbleType
-  | { status: number; message: Message[] | string };
+  | { status: number; message: Message[] };
 
   
   

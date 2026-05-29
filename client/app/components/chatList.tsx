@@ -49,7 +49,7 @@ export default async function GroupList() {
   return (
     <div className=' border-r-4 border-r-violet-600 w-72'>
       <ChatListHeader />
-      <div className='max-h-[542px] overflow-x-auto'>
+      <div className='min-h-[542px] overflow-x-auto'>
         {groupsArray.length > 0 ? (
           groupsArray.map((chat: ChatInfoResponse, index: number) => (
             <ChatItem
