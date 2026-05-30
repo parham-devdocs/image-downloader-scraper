@@ -1,6 +1,6 @@
 "use client"
 
-import { ChatBubbleType, ConversationInfoResponse, Message, User, UserStatus } from '@/types'
+import { ChatBubbleType, ConversationInfoResponse, ConversationMetaData, Message, User, UserStatus } from '@/types'
 import React, { useEffect, useState, useRef, useEffectEvent } from 'react'
 import { useParams } from 'next/navigation'
 import { getMessagesInConversation } from '../actions/messages'
@@ -10,6 +10,7 @@ import MessageBubble from './messageBubble'
 import { BsEmojiGrin } from 'react-icons/bs'
 import { BiCamera, BiMicrophone, BiSend } from 'react-icons/bi'
 import { CgAttachment } from 'react-icons/cg'
+import { getConversationMetaData } from '../actions/conversation'
 
 const ChatPage = () => {
   const [messages, setMessages] = useState<ConversationInfoResponse | null>(null)
@@ -18,9 +19,10 @@ const ChatPage = () => {
   const [currentUserData,setCurrentUserData]=useState<User | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
+  const [conversationMetaData,setConversationMetaData]=useState<ConversationMetaData| null>(null)
   const [error, setError] = useState<null | string>(null);
 
-  const { id,conversationType } = useParams()
+  const { id } = useParams()
   
   const userStatus: UserStatus = {
     username: "l,l;l",
@@ -66,6 +68,23 @@ const loadData = async () => {
       }
     }
     loadData()
+  },[id])
+
+  //////////  getting convversation meta data
+
+  useEffect(()=>{
+    const loadConversationMetaData = async () => {
+      try {
+        const response = await getConversationMetaData(String(id)) 
+      setConversationMetaData(response)
+      console.log(conversationMetaData)
+      } catch (error) {
+        console.error("Failed to load messages:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadConversationMetaData()
   },[id])
 
   ////////  getting user data from local storage
@@ -167,7 +186,7 @@ function onChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
        <CgAttachment/>
       </button>
       {/* Send Button */}
-     
+     {conversationMetaData?.type}
     </div>
   </div>
 </div>

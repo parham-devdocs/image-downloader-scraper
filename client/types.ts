@@ -98,6 +98,19 @@ export type Attachment={
   export  type ConversationInfoResponse =
   | { status: number; message: Message[] };
 
+  export type ConversationMetaData={
+    type: 'group' | "private",
+    metadata: {
+        id?: string,
+        name?:string,
+        description?: string,
+        avatarURL?: Attachment,
+        admin: string,
+        members: [],
+        memberCount: number
+    }
   
-  
-  
+    
+  }
+
+ 

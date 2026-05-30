@@ -20,29 +20,42 @@ export async function postMessage(groupId: string, content?: string) {
 
 
 
-export async function getMessagesInConversation(
-  id: string
-): Promise<ConversationInfoResponse> {
+
+export async function getMessagesInGroup(groupId:string) {
+
   try {
-    const result = await Promise.any([
-      apiClient.get<ChatBubbleType>(
-        `chat/${id}/messages`
-      ),
-      apiClient.get<ChatBubbleType>(
-        `group/${id}/messages`
-      ),
-
-    ]);    
-
-  
+    const result= await apiClient.get<ChatBubbleType>(
+      `group/${groupId}/messages`
+    )
     return {
       status: result.status,
       message: result.data.messages,
-    };  } catch (error) {
+    }; 
+  } catch (error) {
     console.error("Error fetching messages:", error);
     return {
       status: 500,
       message:[]
     };
   }
+
+}
+export async function getMessagesInChat(chatId:string) {
+
+  try {
+    const result= await apiClient.get<ChatBubbleType>(
+      `chat/${chatId}/messages`
+    )
+    return {
+      status: result.status,
+      message: result.data.messages,
+    }; 
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return {
+      status: 500,
+      message:[]
+    };
+  }
+
 }
