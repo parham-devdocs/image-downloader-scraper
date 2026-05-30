@@ -65,14 +65,11 @@ const ChatPage = () => {
       try {
         if (conversationMetaData?.message.type === "group") {
           response = await getMessagesInGroup(String(id));
-          console.log(conversationMetaData)
         } else if (conversationMetaData?.message.type === "chat") {
-          response = await getMessagesInChat(String(id));
           console.log(conversationMetaData)
         }
     
         if (response?.status === 201) {
-          console.log({response})
           setMessages(response);
         }
       } catch (error) {
@@ -97,9 +94,7 @@ const ChatPage = () => {
     const loadConversationMetaData = async () => {
       try {
         const response = await getConversationMetaData(String(id)) 
-        console.log(response?.message.metadata)
       setConversationMetaData(response)
-      console.log(conversationMetaData)
       } catch (error) {
         console.error("Failed to load messages:", error)
       } finally {
@@ -134,7 +129,6 @@ useEffect(() => {
 function onChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
   e.preventDefault()
   setInputValue(e.target.value)
-  console.log(inputValue)
 }
 
   const scrollToBottom = () => {
@@ -161,8 +155,7 @@ function onChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
             ref={chatContainerRef}
             className='flex-1 overflow-y-auto px-4 py-6 space-y-3'
           >
-            {messages?.message.map((m, index) => {
-              console.log({currentUser:currentUserData?._id,messageSenderId:m._id})
+            {messages?.message.map((m) => {
             return  <MessageBubble 
                 _id={m._id} 
                 content={m.content} 

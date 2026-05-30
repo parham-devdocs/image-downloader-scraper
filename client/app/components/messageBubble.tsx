@@ -8,7 +8,6 @@ import { BiCheck } from "react-icons/bi";
 
  
 const SeenComponent = ({ seen,isOwn }: { seen: boolean,isOwn:boolean }) => {
-  console.log(isOwn)
   return seen && !isOwn ? (
     <div className="flex items-center gap-0.5" title="Seen">
       <LuCheckCheck  className="w-5 h-5 text-green-500" />

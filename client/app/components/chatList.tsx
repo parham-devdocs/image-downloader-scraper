@@ -11,11 +11,12 @@ import { notFound } from 'next/navigation';
 export default async function GroupList() {
   const cookie = await (await cookies()).get("accessToken")?.value;
   const result = await getChatList(cookie) 
-  
+  console.log(result?.message)
   if (!result || result.status===404) {
     console.log("not found")
     return notFound()
   }
+  
   // Handle error responses
   if ( result.status === 404 || result.status === 500 || result.status === 401) {
     const errorMessage = result?.message ? String(result.message) : "Failed to load groups";
@@ -42,16 +43,14 @@ export default async function GroupList() {
   
   // Extract groups from response (adjust based on your API response structure)
   const groups = result.message
-  
   // Handle case where groups is not an array
-  const groupsArray = Array.isArray(groups) ? groups : [];
   
   return (
     <div className=' border-r-4 border-r-violet-600 w-72'>
       <ChatListHeader />
       <div className='min-h-[542px] overflow-x-auto'>
-        {groupsArray.length > 0 ? (
-          groupsArray.map((chat: ChatInfoResponse, index: number) => (
+        {groups.length > 0 ? (
+          groups.map((chat: ChatInfoResponse, index: number) => (
             <ChatItem
               key={chat._id || index}
               _id={chat._id}

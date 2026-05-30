@@ -140,10 +140,26 @@ export async function ChatList(
     const roomsObject = Object.fromEntries(
         Array.from(rooms.entries()).map(([room, sockets]) => [room, Array.from(sockets)])
     );
+
     const userChats = await ChatSchema.find({ 
       members: { $in: [currentUser._id] } 
+    }).populate({
+      path: "messages",
+      select: "seen sender",
+      match: { 
+        seen: false,
+        sender: { $en: currentUser._id }  // Not sent by current user
+      }
     });
-        res.json({ message: "Rooms retrieved", userChats});
+    
+    
+    const chatsWithUnreadCount = userChats.map(chat => ({
+      ...chat.toObject(),
+      unreadCount: chat.messages.length  // Length of populated messages array
+    }));
+    
+    
+        res.status(201).json(chatsWithUnreadCount);
   } catch (error) {
     console.error("❌ [ChatList] Error:", error);
     res.status(500).json({ message: "Server error" });
