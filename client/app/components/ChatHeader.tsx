@@ -2,7 +2,7 @@ import { ChatHeaderProps } from "@/types";
 import Image from "next/image";
 import personPic from "../../public/person.jpeg";
 
-export default function ChatHeader({ pic, status }: ChatHeaderProps) {
+export default function ChatHeader({ pic, status,name }: ChatHeaderProps) {
   const getStatusColor = () => {
     if (!status) return "bg-slate-400"; // Default
 
@@ -20,7 +20,7 @@ export default function ChatHeader({ pic, status }: ChatHeaderProps) {
 
   const getActivityText = () => {
     if (!status) return "";
-    const { activity, username, presence } = status;
+    const { activity, presence } = status;
 
     if (activity === "typing") return "typing...";
     
@@ -39,7 +39,7 @@ export default function ChatHeader({ pic, status }: ChatHeaderProps) {
         <div className="relative w-full h-full overflow-hidden rounded-full border border-white/10">
           <Image
             src={pic?.url || personPic}
-            alt={status?.username || "User"}
+            alt={name || "User"}
             fill
             className="object-cover"
           />
@@ -56,7 +56,7 @@ export default function ChatHeader({ pic, status }: ChatHeaderProps) {
       {/* Text Info */}
       <div className="ml-4 flex flex-col">
         <h1 className="font-semibold text-[16px] text-white tracking-tight">
-          {status?.username || "Loading..."}
+          {name}
         </h1>
         
         {status && (

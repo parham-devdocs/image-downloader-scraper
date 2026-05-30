@@ -68,7 +68,6 @@ export type Attachment={
   export type ActivityStatus = "typing" | "idle";
   
   export type UserStatus = {
-    username: string;
     presence: PresenceStatus;
     activity?: ActivityStatus; // e.g. "typing" when applicable
   };
@@ -81,6 +80,7 @@ export type Attachment={
   export type ChatHeaderProps = {
     pic?:Attachment
     status: UserStatus;
+    name:string
   };
   
   export interface ChatInfoResponse {
@@ -95,11 +95,9 @@ export type Attachment={
        unreadCount:number
   }
 
-  export  type ConversationInfoResponse =
-  | { status: number; message: Message[] };
-
+ 
   export type ConversationMetaData={
-    type: 'group' | "private",
+    type: 'group' | "chat",
     metadata: {
         id?: string,
         name?:string,
@@ -113,4 +111,8 @@ export type Attachment={
     
   }
 
- 
+ export  type GeneralApiCallResult<T> = {
+    status: number;          
+    message: T;       
+  };
+  

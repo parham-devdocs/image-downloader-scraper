@@ -1,50 +1,55 @@
 "use client"
 
-import { ChatBubbleType, ConversationInfoResponse, ConversationMetaData, Message, User, UserStatus } from '@/types'
+import {  ConversationMetaData, GeneralApiCallResult, Message, User, UserStatus } from '@/types'
 import React, { useEffect, useState, useRef, useEffectEvent } from 'react'
 import { useParams } from 'next/navigation'
-import { getMessagesInConversation } from '../actions/messages'
+import { getMessagesInChat,getMessagesInGroup } from '../actions/messages'
 import Loader from './loader'
 import ChatHeader from './ChatHeader'
 import MessageBubble from './messageBubble'
-import { BsEmojiGrin } from 'react-icons/bs'
 import { BiCamera, BiMicrophone, BiSend } from 'react-icons/bi'
 import { CgAttachment } from 'react-icons/cg'
 import { getConversationMetaData } from '../actions/conversation'
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState<ConversationInfoResponse | null>(null)
+  const [messages, setMessages] = useState<GeneralApiCallResult<Message[]> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [inputValue, setInputValue] = useState("")
   const [currentUserData,setCurrentUserData]=useState<User | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
-  const [conversationMetaData,setConversationMetaData]=useState<ConversationMetaData| null>(null)
+  const [conversationMetaData,setConversationMetaData]=useState<GeneralApiCallResult<ConversationMetaData> | null>(null)
   const [error, setError] = useState<null | string>(null);
 
   const { id } = useParams()
   
   const userStatus: UserStatus = {
-    username: "l,l;l",
     presence: "online",
     activity: "typing"
   }///getting data for messages
 
 
   ////// refetching data
-const loadData = async () => {
-  try {
-    const response = await getMessagesInConversation(String(id))
-    console.log(response)
-    if (response.status === 201) {
-      setMessages(response)
+  const loadData = async () => {
+    let response: GeneralApiCallResult<Message[]> | undefined;
+  
+    try {
+      if (conversationMetaData?.message.type === "group") {
+        response = await getMessagesInGroup(String(id));
+      } else if (conversationMetaData?.message.type === "chat") {
+        response = await getMessagesInChat(String(id));
+      }
+  
+      if (response?.status === 201) {
+        setMessages(response);
+      }
+    } catch (error) {
+      console.error("Failed to load messages:", error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Failed to load messages:", error)
-  } finally {
-    setIsLoading(false)
-  }
-}
+  };
+  
 
   useEffectEvent(() => {
    console.log("event")
@@ -55,20 +60,36 @@ const loadData = async () => {
   ///getting data for messages - initial fetch
   useEffect(()=>{
     const loadData = async () => {
+      let response: GeneralApiCallResult<Message[]> | undefined;
+    console.log({conversationMetaData})
       try {
-        const response = await getMessagesInConversation(String(id))
-        console.log(response)
-        if (response.status === 201) {
-          setMessages(response)
+        if (conversationMetaData?.message.type === "group") {
+          response = await getMessagesInGroup(String(id));
+          console.log(conversationMetaData)
+        } else if (conversationMetaData?.message.type === "chat") {
+          response = await getMessagesInChat(String(id));
+          console.log(conversationMetaData)
+        }
+    
+        if (response?.status === 201) {
+          console.log({response})
+          setMessages(response);
         }
       } catch (error) {
-        console.error("Failed to load messages:", error)
+        console.error("Failed to load messages:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    loadData()
-  },[id])
+    };
+    
+  loadData()
+    
+  },[id,conversationMetaData])
+  useEffectEvent(() => {
+    console.log("event")
+ 
+     loadData()
+   })
 
   //////////  getting convversation meta data
 
@@ -76,6 +97,7 @@ const loadData = async () => {
     const loadConversationMetaData = async () => {
       try {
         const response = await getConversationMetaData(String(id)) 
+        console.log(response?.message.metadata)
       setConversationMetaData(response)
       console.log(conversationMetaData)
       } catch (error) {
@@ -126,7 +148,7 @@ function onChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
 
   return (
     <div className='w-full h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100'>
-      <ChatHeader status={userStatus} />
+      <ChatHeader pic={conversationMetaData?.message.metadata.avatarURL} status={userStatus} name={conversationMetaData?.message.metadata.name ? conversationMetaData.message.metadata.name : "unknown"} />
       
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -186,7 +208,6 @@ function onChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
        <CgAttachment/>
       </button>
       {/* Send Button */}
-     {conversationMetaData?.type}
     </div>
   </div>
 </div>
