@@ -81,6 +81,9 @@ export type Attachment={
     pic?:Attachment
     status: UserStatus;
     name:string
+    type: 'group' | "chat",
+    typingUsers:string[]
+    onlineUsers:string[]
   };
   
   export interface ChatInfoResponse {

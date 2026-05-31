@@ -1,30 +1,52 @@
-import ChatItem from './chatItem';
-import ChatListFooter from './chatListFooter';
-import ChatListHeader from './chatListHeader';
+"use client"
+import ChatItem from './conversationItem';
+import ChatListFooter from './conversationFooter';
+import ChatListHeader from './conversationHeader';
 import PersonPic from "../../public/person.jpeg";
-import { ChatInfoResponse } from '@/types';
-import { cookies } from 'next/headers';
+import { ChatInfoResponse,GeneralApiCallResult } from '@/types';
 import Link from 'next/link';
 import { getChatList } from '../actions/chats';
-import { notFound } from 'next/navigation';
+import ConversationListTab from './conversationListTab';
+import { useEffect, useState } from 'react';
+import Loader from './loader';
+import { getGroupList } from '../actions/groups';
 
-export default async function GroupList() {
-  const cookie = await (await cookies()).get("accessToken")?.value;
-  const result = await getChatList(cookie) 
-  console.log(result?.message)
-  if (!result || result.status===404) {
-    console.log("not found")
-    return notFound()
-  }
+
+ export type ConversationListType = "Groups" | "Chats"
+export default function GroupList() {
+  const [state, setState] = useState<ConversationListType>("Groups")
+  const [result, setResult] = useState<GeneralApiCallResult<ChatInfoResponse[]> | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      
+      let response:any;
+      setLoading(true)
+      if (state==="Chats") {
+         response = await getChatList()
+
+      }
+      if (state==="Groups") {
+        response = await getGroupList()
+
+     }
+      setResult(response)
+      setLoading(false)
+    }
+    loadData()
+  }, [state])
+ 
   
   // Handle error responses
-  if ( result.status === 404 || result.status === 500 || result.status === 401) {
+  if ( result?.status === 404 || result?.status === 500 || result?.status === 401) {
     const errorMessage = result?.message ? String(result.message) : "Failed to load groups";
     const statusCode = result?.status || "Unknown";
     
     return (
-      <div className='w-full border-r-4 border-r-violet-600'>
+      <div className=' w-72 border-r-4 border-r-violet-600'>
         <ChatListHeader />
+        {loading && <Loader size="md"/>}
         <div className='max-h-[542px] overflow-x-auto flex items-center justify-center p-4'>
           <div className="text-red-500 text-center">
             <p className="font-semibold">Error {statusCode}</p>
@@ -42,15 +64,15 @@ export default async function GroupList() {
   }
   
   // Extract groups from response (adjust based on your API response structure)
-  const groups = result.message
   // Handle case where groups is not an array
   
   return (
-    <div className=' border-r-4 border-r-violet-600 w-72'>
+    <div className=' border-r-4 border-r-violet-600 w-72  '>
       <ChatListHeader />
-      <div className='min-h-[542px] overflow-x-auto'>
-        {groups.length > 0 ? (
-          groups.map((chat: ChatInfoResponse, index: number) => (
+      <ConversationListTab onTabChangeHandler={(value:ConversationListType)=>{setState(value)}}/>
+      <div className=' max-h-[480px] overflow-hidden'>
+        {result?.message && result?.message?.length > 0 ? (
+          result?.message.map((chat: ChatInfoResponse, index: number) => (
             <ChatItem
               key={chat._id || index}
               _id={chat._id}

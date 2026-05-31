@@ -1,9 +1,9 @@
-import { ChatRoomResponse } from "@/types";
+import { ChatInfoResponse } from "@/types";
 import Avatar from "./avatar";
 
 import Link from "next/link";
 
-const ChatItem = ({ name, avatarURL, lastMessage,_id,description ,unreadCount }: ChatRoomResponse) => {
+const ChatItem = ({ name, avatarURL, lastMessage,_id,description ,unreadCount }: ChatInfoResponse) => {
  
   return (
     <Link className="group flex items-center w-72 h-20 px-4 cursor-pointer 
@@ -11,7 +11,7 @@ const ChatItem = ({ name, avatarURL, lastMessage,_id,description ,unreadCount }:
       href={`/${_id}`}
       >
 
-    <Avatar name={name} avatarURL={avatarURL }/>
+    <Avatar url={avatarURL} filename="chat or group " />
 
       <div className="flex-1 ml-4 min-w-0">
         <div className="flex justify-between items-center">

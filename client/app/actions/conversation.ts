@@ -10,6 +10,7 @@ export async function getConversationMetaData(
   ): Promise<GeneralApiCallResult<ConversationMetaData> | null> {
     try {
       const response = await apiClient.get<ConversationMetaData>(`/conversation/${id}/metadata`);
+      console.log(response.data)
   
       return {
         status: response.status,

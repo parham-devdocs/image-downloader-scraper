@@ -1,5 +1,4 @@
 "use client"
-import Image from "next/image"
 import React, { useEffect, useState } from "react"
 import { BiSearch } from "react-icons/bi"
 import { CiSettings } from "react-icons/ci"
@@ -77,8 +76,9 @@ const ChatListHeader = () => {
 
       {/* avatar (unchanged half-hidden circle) */}
       <div className="w-14 h-14 bg-violet-600 absolute top-20 left-28 rounded-full">
-       <Avatar name={"person"} avatarURL={"/person.jpeg"}/>
+       <Avatar filename="user" url=""/>
       </div>
+     
 
     </div>
   )

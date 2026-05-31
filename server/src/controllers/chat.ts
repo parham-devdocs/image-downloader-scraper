@@ -148,7 +148,7 @@ export async function ChatList(
       select: "seen sender",
       match: { 
         seen: false,
-        sender: { $en: currentUser._id }  // Not sent by current user
+        sender: { $ne: currentUser._id }  // Not sent by current user
       }
     });
     

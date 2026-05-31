@@ -22,10 +22,23 @@ export async function getConversationMetaData(
             .lean();
             
         if (privateChat) {
+            console.log('Current User ID:', currentUserId?.toString());
+            console.log('All members:', privateChat.members.map((m: any) => ({ 
+                id: m._id.toString(), 
+                username: m.username 
+            })));
+            
             // Find the other member (not the current user)
             const otherMember = privateChat.members.find(
                 (member: any) => member._id.toString() !== currentUserId?.toString()
             );
+            
+            console.log('Found other member:', otherMember);
+            
+            if (!otherMember) {
+                res.status(404).json({ error: "Other participant not found" });
+                return;
+            }
             
             res.status(200).json({
                 type: 'private',
@@ -33,7 +46,6 @@ export async function getConversationMetaData(
                     id: privateChat._id,
                     name: otherMember?.username || 'Unknown User',
                     avatarURL: otherMember?.attachment?.url || null,
-                    
                     createdAt: privateChat.createdAt,
                     updatedAt: privateChat.updatedAt
                 }
@@ -57,7 +69,7 @@ export async function getConversationMetaData(
                     name: groupChat.name,
                     description: groupChat.description,
                     avatarURL: groupChat.avatarURL,
-                    admin: groupChat.admin.username,
+                    admin: groupChat.admin?.username || 'Unknown',
                     members: groupChat.members,
                     memberCount: groupChat.members.length
                 }

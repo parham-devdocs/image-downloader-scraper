@@ -2,7 +2,7 @@ import { ChatHeaderProps } from "@/types";
 import Image from "next/image";
 import personPic from "../../public/person.jpeg";
 
-export default function ChatHeader({ pic, status,name }: ChatHeaderProps) {
+export default function ChatHeader({ pic, status,name,type,onlineUsers ,typingUsers}: ChatHeaderProps) {
   const getStatusColor = () => {
     if (!status) return "bg-slate-400"; // Default
 
@@ -59,13 +59,19 @@ export default function ChatHeader({ pic, status,name }: ChatHeaderProps) {
           {name}
         </h1>
         
-        {status && (
+        {type==="chat"&& status && (
           <p className={`text-[12px] transition-all duration-300 ${
             status.activity === "typing" ? "text-emerald-300 font-medium italic" : "text-indigo-100/80"
           }`}>
             {activityText}
           </p>
         )}
+          { type==="group"  && (
+        <div className="px-4 py-1 text-xs  border-b">
+          {onlineUsers.length} user(s) online: {onlineUsers.join(', ')}
+        </div>
+      )}
+
       </div>
     </header>
   );
