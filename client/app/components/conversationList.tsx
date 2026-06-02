@@ -1,7 +1,7 @@
 "use client"
-import ChatItem from './conversationItem';
-import ChatListFooter from './conversationFooter';
-import ChatListHeader from './conversationHeader';
+import ChatItem from './conversationListItem';
+import ChatListFooter from './conversationListFooter';
+import ChatListHeader from './conversationListHeader';
 import PersonPic from "../../public/person.jpeg";
 import { ChatInfoResponse,GeneralApiCallResult } from '@/types';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ import { getGroupList } from '../actions/groups';
 
 
  export type ConversationListType = "Groups" | "Chats"
-export default function GroupList() {
+export default function ConversationList() {
   const [state, setState] = useState<ConversationListType>("Groups")
   const [result, setResult] = useState<GeneralApiCallResult<ChatInfoResponse[]> | null>(null)
   const [loading, setLoading] = useState(true)
@@ -82,6 +82,7 @@ export default function GroupList() {
               unreadCount={chat.unreadCount || 0}
               avatarURL={chat.avatarURL || PersonPic}
               name={chat.name}
+              type={state==="Chats"? "chat" : "group"}
             />
           ))
         ) : (

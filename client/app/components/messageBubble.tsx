@@ -20,13 +20,13 @@ const SeenComponent = ({ seen,isOwn }: { seen: boolean,isOwn:boolean }) => {
 };
 const MessageBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps ) => {
   return (
-    <div className={`w-full flex ${isOwn ? "justify-start" : "justify-end"} my-8`}>
+    <div className={`w-full flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
       
-      <div className={`flex items-end gap-3 ${isOwn ? "" : " flex-row-reverse"}`}>
+      <div className={`flex items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
 
         <Avatar  url={imageAvatarURL?.url} filename={imageAvatarURL?.filename} />
 
-        <div className="flex flex-col max-w-[70%] relative">
+        <div className="flex flex-col max-w-[70%] relative scale-100 starting:scale-0  opacity-100 transition-all duration-700 ease-out starting:opacity-0">
           
           <div
             className={`
@@ -37,8 +37,8 @@ const MessageBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }
               break-words
               ${
                 isOwn
-                  ? "bg-slate-200 text-slate-900 rounded-bl-md"
-                  : "bg-violet-600 text-white rounded-br-md"
+                  ?  "bg-violet-600 text-white rounded-br-md"
+                  :"bg-slate-200 text-slate-900 rounded-bl-md"
               }
             `}
           >
@@ -48,13 +48,13 @@ const MessageBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }
           {createdAt && (
             <span
               className={`text-[11px] mt-1 ${
-                isOwn ? "text-right text-slate-400" : "text-slate-400"
+                isOwn ?"text-slate-400"  : "text-right text-slate-400"
               }`}
             >
               {formatTime(createdAt)}
             </span>
           )}
-          <div className=" absolute bottom-5 right-1"><SeenComponent isOwn={isOwn} seen={seen}/></div>
+         {!isOwn &&  <div className=" absolute bottom-5 right-1"><SeenComponent isOwn={isOwn} seen={seen}/></div>} 
         </div>
 
       </div>

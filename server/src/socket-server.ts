@@ -19,7 +19,6 @@ export async function initSocket(httpServer: any) {
     console.log({rawCookieHeader})
     if (!rawCookieHeader) return next(new Error("No cookies"));
 
-    // Better cookie parsing
     const cookies = Object.fromEntries(
       rawCookieHeader.split('; ').map((c) => {
         const [key, ...v] = c.split('=');
@@ -44,8 +43,8 @@ export async function initSocket(httpServer: any) {
 
   io.on('connection', async (socket: any) => {
     const userId = socket.user.payload; 
-    const user=await UserModel.findById(userId)
-    console.log(`✅ User connected: ${userId}`);
+    const user = await UserModel.findById(userId)
+    console.log(`✅ User connected: ${user?.username || userId}`);
 
     socket.on("join_room", (groupId: string) => {
       // Leave previous room if exists
@@ -54,17 +53,21 @@ export async function initSocket(httpServer: any) {
         socket.leave(previousRoom);
       }
       
-      // Join new room
+      // Join new room - IMPORTANT!
       socket.join(groupId);
       
-      // Store the userEmail in the map
-      connectedUsers.set(socket.id, { userId, room: groupId });
+      // Store the user info in the map
+      connectedUsers.set(socket.id, { 
+        userId: user?._id, 
+        username: user?.username,
+        room: groupId 
+      });
 
-      // Get users in the room
+      // Get users in the room with their usernames
       const usersInRoom = Array.from(connectedUsers.values())
         .filter(u => u.room === groupId)
-        .map(u => u.userEmail);
-
+        .map(u => u.username);
+        
       // Send updated user list to everyone in the room
       io.in(groupId).emit("user in room", usersInRoom);
       
@@ -78,13 +81,13 @@ export async function initSocket(httpServer: any) {
       console.log(`${user?.username} joined room: ${groupId}`);
     });
 
-    socket.on("send_message", (data:any) => {
+    socket.on("send_message", (data: any) => {
       console.log("Message received:", data);
       // Broadcast to everyone in the room including sender
       io.in(data.room).emit("receive_message", {
-        _id: Date.now().toString(),
+        _id: new mongoose.Types.ObjectId().toString(),
         content: data.message,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         sender: data.sender,
         seen: []
       });
@@ -107,6 +110,7 @@ export async function initSocket(httpServer: any) {
     });
 
     socket.on("stop_typing", (groupId: string) => {
+      clearTimeout(socket.typingTimeout);
       socket.to(groupId).emit("typing_indicator", {
         userId: user?.username,
         isTyping: false
@@ -120,7 +124,7 @@ export async function initSocket(httpServer: any) {
       // Update remaining users in the room
       const usersInRoom = Array.from(connectedUsers.values())
         .filter(u => u.room === groupId)
-        .map(u => u.userEmail);
+        .map(u => u.username);
       
       io.in(groupId).emit("user in room", usersInRoom);
       
@@ -136,23 +140,25 @@ export async function initSocket(httpServer: any) {
     socket.on('disconnect', () => {
       const userInfo = connectedUsers.get(socket.id);
       if (userInfo) {
-        const { userEmail, room } = userInfo;
+        const { username, room } = userInfo;
         connectedUsers.delete(socket.id);
+        
+
         
         // Update users in the room
         const usersInRoom = Array.from(connectedUsers.values())
           .filter(u => u.room === room)
-          .map(u => u.userEmail);
+          .map(u => u.username);
         
         io.in(room).emit("user in room", usersInRoom);
         
         io.in(room).emit("notification", {
           type: "USER_LEFT",
-          message: `${userEmail} has disconnected`,
-          user: userEmail
+          message: `${username} has disconnected`,
+          user: username
         });
         
-        console.log(`❌ User disconnected: ${userEmail}`);
+        console.log(`❌ User disconnected: ${username}`);
       }
     });
   });

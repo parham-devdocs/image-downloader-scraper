@@ -1,6 +1,5 @@
-import { ChatBubbleType, ConversationInfoResponse } from "@/types";
+import { ChatBubbleType } from "@/types";
 import apiClient from "../axios";
-import { notFound } from "next/navigation";
 
 export async function postMessage(groupId: string, content?: string) {
   try {
@@ -46,6 +45,41 @@ export async function getMessagesInChat(chatId:string) {
     const result= await apiClient.get<ChatBubbleType>(
       `chat/${chatId}/messages`
     )
+    return {
+      status: result.status,
+      message: result.data.messages,
+    }; 
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return {
+      status: 500,
+      message:[]
+    };
+  }
+
+}
+
+export async function sendMessageToChat({content,chatId}:{content:string,chatId:string}) {
+  try {
+    const result= await apiClient.post("/message/chat",{content,chatId})
+    return {
+      status: result.status,
+      message: result.data.messages,
+    }; 
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return {
+      status: 500,
+      message:[]
+    };
+  }
+
+}
+
+
+export async function sendMessageToGroup({content,groupId}:{content:string,groupId:string}) {
+  try {
+    const result= await apiClient.post("/message/group",{content,groupId})
     return {
       status: result.status,
       message: result.data.messages,

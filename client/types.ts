@@ -64,12 +64,11 @@ export type Attachment={
   
   }
 
-  export type PresenceStatus = "online" | "last_seen_recently" | "offline";
-  export type ActivityStatus = "typing" | "idle";
+  export type PresenceStatus = "online" | "offline";
   
   export type UserStatus = {
     presence: PresenceStatus;
-    activity?: ActivityStatus; // e.g. "typing" when applicable
+    isTyping?: boolean
   };
   
   export type ChatBubbleType = {
@@ -80,10 +79,14 @@ export type Attachment={
   export type ChatHeaderProps = {
     pic?:Attachment
     status: UserStatus;
+    name?:string
+  
+  };
+  export type GroupHeaderProps = {
+    pic?:Attachment
     name:string
-    type: 'group' | "chat",
-    typingUsers:string[]
-    onlineUsers:string[]
+    typingUsers:Set<string>
+    onlineUsers:number
   };
   
   export interface ChatInfoResponse {
@@ -96,6 +99,7 @@ export type Attachment={
        description:string
        avatarURL?:any
        unreadCount:number
+       type:"group"|"chat"
   }
 
  
@@ -109,6 +113,7 @@ export type Attachment={
         admin: string,
         members: [],
         memberCount: number
+        otherMember?:{username:string,email:string,_id:string}
     }
   
     

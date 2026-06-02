@@ -30,9 +30,10 @@ export async function getConversationMetaData(
             
             // Find the other member (not the current user)
             const otherMember = privateChat.members.find(
-                (member: any) => member._id.toString() !== currentUserId?.toString()
+                (member: any) =>{
+                   return  member._id.toString() !== currentUserId.toString()}
             );
-            
+            privateChat.members.map((i:any)=>{console.log(i._id==currentUserId)})
             console.log('Found other member:', otherMember);
             
             if (!otherMember) {
@@ -47,7 +48,8 @@ export async function getConversationMetaData(
                     name: otherMember?.username || 'Unknown User',
                     avatarURL: otherMember?.attachment?.url || null,
                     createdAt: privateChat.createdAt,
-                    updatedAt: privateChat.updatedAt
+                    updatedAt: privateChat.updatedAt,
+                    otherMember
                 }
             });
             return;

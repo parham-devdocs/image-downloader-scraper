@@ -3,12 +3,12 @@ import Avatar from "./avatar";
 
 import Link from "next/link";
 
-const ChatItem = ({ name, avatarURL, lastMessage,_id,description ,unreadCount }: ChatInfoResponse) => {
+const ChatItem = ({type, name, avatarURL, lastMessage,_id,description ,unreadCount }: ChatInfoResponse) => {
  
   return (
     <Link className="group flex items-center w-72 h-20 px-4 cursor-pointer 
       hover:bg-violet-600 transition-all duration-200 border-b border-slate-200"
-      href={`/${_id}`}
+      href={`/${type}/${_id}`}
       >
 
     <Avatar url={avatarURL} filename="chat or group " />
