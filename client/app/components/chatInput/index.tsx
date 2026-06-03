@@ -80,9 +80,7 @@ const ChatInput = ({ inputValue, onChangeHandler, sendMessage }: ChatInputProps)
         <button className="mb-1.5 bg-violet-600 text-white rounded-full p-3 cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
           <BiCamera/>
         </button>
-        <button className="mb-1.5 bg-violet-600 cursor-pointer text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
-          <CgAttachment/>
-        </button>
+        <FileUploader/>
       </div>
     </div>
   </div>  )
@@ -92,6 +90,7 @@ export default ChatInput
 
 
 import React from 'react'
+import FileUploader from './FileUploader';
 
 const HoldingBtn = () => {
   return (
