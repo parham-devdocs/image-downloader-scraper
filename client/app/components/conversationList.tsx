@@ -44,10 +44,10 @@ export default function ConversationList() {
     const statusCode = result?.status || "Unknown";
     
     return (
-      <div className=' w-72 border-r-4 border-r-violet-600'>
+      <div className=' w-72 border-r-4 border-r-violet-600 '>
         <ChatListHeader />
         {loading && <Loader size="md"/>}
-        <div className='max-h-[542px] overflow-x-auto flex items-center justify-center p-4'>
+        <div className='min-h-[490px] overflow-x-auto flex items-center justify-center p-4'>
           <div className="text-red-500 text-center">
             <p className="font-semibold">Error {statusCode}</p>
             <p>{errorMessage}</p>
@@ -70,7 +70,7 @@ export default function ConversationList() {
     <div className=' border-r-4 border-r-violet-600 w-72  '>
       <ChatListHeader />
       <ConversationListTab onTabChangeHandler={(value:ConversationListType)=>{setState(value)}}/>
-      <div className=' max-h-[480px] overflow-hidden'>
+      <div className=' min-h-[490px] overflow-hidden'>
         {result?.message && result?.message?.length > 0 ? (
           result?.message.map((chat: ChatInfoResponse, index: number) => (
             <ChatItem
