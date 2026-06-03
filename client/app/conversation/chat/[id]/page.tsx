@@ -34,6 +34,8 @@ const ChatPage = () => {
     isTyping: false
   })
 
+ 
+
   // 1. Setup socket event listeners (ONCE)
   useEffect(() => {
     const onConnect = () => {
@@ -220,10 +222,10 @@ const ChatPage = () => {
   };
 
   // 6. Handle typing indicator - FIXED VERSION
-  const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setInputValue(e.target.value);
-    
+    console.log(inputValue)
     // Clear existing timeouts
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -287,7 +289,7 @@ const ChatPage = () => {
             <div ref={messagesEndRef} />
           </div>
 
-         <ChatInput inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={()=>onChangeHandler}/>
+         <ChatInput inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)}/>
         </>
       )}
     </div>
