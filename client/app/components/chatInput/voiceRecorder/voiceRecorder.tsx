@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
-import MicNoiseIndicator from "./micNoise/indicator";
-
+import MicNoiseIndicator from "./indicator";
 
 const VoiceRecorder = () => {
   const [time, setTime] = useState(0);
@@ -26,21 +25,17 @@ const VoiceRecorder = () => {
 
   return (
     <div className=" flex items-center gap-32 w-1/2 ">
-         <button className=" flex items-center gap-1 starting:opacity-0 opacity-100 transition-all duration-1000 ">
-           <MdKeyboardDoubleArrowLeft  size={25}/> cancel 
-        </button>
-        <MicNoiseIndicator/>
-<div className=" flex items-center gap-2 flex-1 starting:opacity-0 opacity-100 transition-all duration-500">
-      <div className=" w-3 h-3 rounded-full bg-red-500  animate-pulse"></div>
+      <button className=" flex items-center gap-1 starting:opacity-0 opacity-100 transition-all duration-1000 ">
+        <MdKeyboardDoubleArrowLeft size={25} /> cancel
+      </button>
+      <MicNoiseIndicator />
+      <div className=" flex items-center gap-2 flex-1 starting:opacity-0 opacity-100 transition-all duration-500">
+        <div className=" w-3 h-3 rounded-full bg-red-500  animate-pulse"></div>
 
-     <p >
-     {format(time)}
-        
-        </p> 
+        <p>{format(time)}</p>
+      </div>
     </div>
-    </div>
-    
   );
 };
 
-export default VoiceRecorder
+export default VoiceRecorder;
