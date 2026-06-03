@@ -22,7 +22,7 @@ export async function getConversationMetaData(
             .lean();
             
         if (privateChat) {
-            console.log('Current User ID:', currentUserId?.toString());
+            console.log('Current User ID:', currentUserId);
             console.log('All members:', privateChat.members.map((m: any) => ({ 
                 id: m._id.toString(), 
                 username: m.username 
@@ -31,9 +31,8 @@ export async function getConversationMetaData(
             // Find the other member (not the current user)
             const otherMember = privateChat.members.find(
                 (member: any) =>{
-                   return  member._id.toString() !== currentUserId.toString()}
+                   return  member._id !== currentUserId}
             );
-            privateChat.members.map((i:any)=>{console.log(i._id==currentUserId)})
             console.log('Found other member:', otherMember);
             
             if (!otherMember) {
