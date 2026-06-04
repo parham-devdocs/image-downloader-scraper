@@ -66,6 +66,7 @@ groupSchema.statics.isMember = async function(userId: string, groupId: string) {
     _id: groupId, 
     members: { $in: [userId] } 
   });
+  console.log({group})
   return !!group; 
 };
 

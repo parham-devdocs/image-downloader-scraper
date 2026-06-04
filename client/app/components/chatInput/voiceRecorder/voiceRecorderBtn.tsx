@@ -1,6 +1,6 @@
 "use client"
 
-import  { useEffect, useRef, useState } from 'react'
+import  {  useRef, useState } from 'react'
 import { BiLock, BiMicrophone } from 'react-icons/bi';
 import { BsUnlock } from 'react-icons/bs';
 import { RiArrowUpSLine } from 'react-icons/ri';
@@ -13,14 +13,14 @@ const startY = useRef(0);
 const isRecording = recordingState !== "Idle";
 const isLocked = recordingState === "Locked";
 
-const handlePointerDown = (e: PointerEvent) => {
+const handlePointerDown = (e: React.MouseEvent<HTMLButtonElement>) => {
   setRecordingState("Holding");
   isRecordingHandler(true)
   startY.current = e.clientY;
   console.log("Started Recording");
 };
 
-const handlePointerMove = (e: PointerEvent) => {
+const handlePointerMove = (e:React.MouseEvent<HTMLButtonElement>) => {
   console.log({ clientY: e.clientY, startY: startY.current });
   if (recordingState === "Holding" && startY.current - e.clientY < 50) {
     setRecordingState("Locked");
@@ -50,7 +50,7 @@ const handleStopRecording = () => {
     )}
     <button
       onPointerDown={(e)=>handlePointerDown(e)}
-      onMouseMove={(e: any) => handlePointerMove(e)}
+      onMouseMove={(e: React.MouseEvent<HTMLButtonElement>) => handlePointerMove(e)}
       onPointerUp={handlePointerUp}
       className="mb-1.5 cursor-pointer bg-violet-600 text-white rounded-full p-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
     >

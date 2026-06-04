@@ -1,7 +1,7 @@
 import React from "react";
-import Avatar from "./avatar";
+import Avatar from "../avatar";
 import { Message } from "@/types";
-import formatTime from "../utils/formatTime";
+import formatTime from "../../utils/formatTime";
 import { LuCheckCheck } from "react-icons/lu";
 import { BiCheck } from "react-icons/bi";
  type ChatBubbleProps  =  Message & {isOwn:boolean}
@@ -18,7 +18,7 @@ const SeenComponent = ({ seen,isOwn }: { seen: boolean,isOwn:boolean }) => {
     </div>
   );
 };
-const MessageBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps ) => {
+const ChatBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }: ChatBubbleProps ) => {
   return (
     <div className={`w-full flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
       
@@ -63,4 +63,4 @@ const MessageBubble = ({ content,seen, sender,isOwn, imageAvatarURL, createdAt }
   );
 };
 
-export default MessageBubble
+export default ChatBubble

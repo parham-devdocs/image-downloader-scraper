@@ -331,7 +331,6 @@ export async function getMessagesInGroup(
     .select("messages")
     .populate({
       path: 'messages', 
-      options:{sort:{createAt:1}} ,    
       populate: {
         path: 'sender',       
         model: 'User'   ,

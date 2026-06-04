@@ -1,8 +1,4 @@
-
-import bundleAnalyzer from '@next/bundle-analyzer'
-bundleAnalyzer(({
-  enabled: process.env.ANALYZE === 'true',
-}))
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {

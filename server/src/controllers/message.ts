@@ -29,8 +29,12 @@ if (!content) {
   res.status(404).json({message:"content does not exist"})
 return
 }
-const isMember=await (GroupModel as any).isMember(currentUser.id,groupId)
-console.log(isMember)
+
+const isMember=  await GroupModel.findOne({ 
+  _id: groupId, 
+  members: { $in: [currentUser] } 
+});
+console.log({currentUser,groupId,isMember})
 if (!isMember) {
   res.status(404).json({message:"user is not a member"})
 return

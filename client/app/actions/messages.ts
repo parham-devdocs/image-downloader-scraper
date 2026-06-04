@@ -21,7 +21,6 @@ export async function postMessage(groupId: string, content?: string) {
 
 
 export async function getMessagesInGroup(groupId:string) {
-
   try {
     const result= await apiClient.get<ChatBubbleType>(
       `group/${groupId}/messages`
