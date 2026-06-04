@@ -21,7 +21,6 @@ const [onlineUsers,setOnlineUsers]=useState(0)
 
   useEffect(() => {
     if (!id) return;
-
     const onConnect = () => {
       console.log("Socket connected:", socket.id);
       socket.emit("join_room", id);
@@ -29,6 +28,12 @@ const [onlineUsers,setOnlineUsers]=useState(0)
 
     const onUserInRoom = (users: string[]) => {
       setOnlineUsers(users.length);
+      if (users.length>1) {
+        console.log("more than one user")
+        setUserStatus((prev) => ({
+            ...prev,
+            presence:"online"
+          }));      }
     };
 
     const onTypingIndicator = (data: { userId: string; isTyping: boolean }) => {
@@ -43,8 +48,8 @@ const [onlineUsers,setOnlineUsers]=useState(0)
 
         return newSet;
       });
-
-      if (otherMemberId === data.userId) {
+console.log({otherMemberId})
+      if (otherMemberId) {
         setUserStatus((prev) => ({
           ...prev,
           isTyping: data.isTyping,

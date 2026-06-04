@@ -10,6 +10,7 @@ import { getConversationMetaData } from '../../../actions/conversation'
 import { socket } from '../../../socket'
 import ChatHeader from '@/app/components/Chat/Header'
 import ChatInput from '@/app/components/chatInput'
+import useSocket from '@/app/hooks/useSocket'
 
 const ChatPage = () => {
   const [messages, setMessages] = useState<GeneralApiCallResult<Message[]> | null>(null)
@@ -18,113 +19,24 @@ const ChatPage = () => {
   const [currentUserData, setCurrentUserData] = useState<User | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
-  const [conversationMetaData, setConversationMetaData] = useState<GeneralApiCallResult<ConversationMetaData> | null>(null)
+  const [conversationMetaData, setConversationMetaData] = useState<ConversationMetaData | null>(null)
   const [error, setError] = useState<null | string>(null);
-  const [isOnline, setIsOnline] = useState<number>(0);
-  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const stopTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { id } = useParams()
   
-  const [userStatus, setUserStatus] = useState<UserStatus>({
-    presence: "online",
-    isTyping: false
-  })
-
+const {userStatus}=useSocket({conversationMetaData,id})
  
-
-  // 1. Setup socket event listeners (ONCE)
-  useEffect(() => {
-    const onConnect = () => {
-      console.log('Socket connected:', socket.id);
-      // Join room when socket connects
-      if (id) {
-        console.log("Joining room after connect:", id);
-        socket.emit("join_room", id);
-      }
-    };
-
-    const onUserInRoom = (users: string[]) => {
-      console.log("Users in room:", users);
-      setIsOnline(users.length);
-    };
-
-    const onNotification = (notification: {
-      type: string;
-      message: string;
-      user: string;
-    }) => {
-      console.log(`${notification.type}: ${notification.message}`);
-      // You can show a toast notification here
-    };
-
-    const onTypingIndicator = (data: { userId: string; isTyping: boolean }) => {
-      setTypingUsers(prev => {
-        const newSet = new Set(prev);
-        if (data.isTyping) {
-          newSet.add(data.userId);
-        } else {
-          newSet.delete(data.userId);
-        }
-        return newSet;
-      });
-      
-      // Update userStatus if this is the other user typing
-      if (conversationMetaData?.message?.metadata.otherMember?._id === data.userId) {
-        setUserStatus(prev => ({
-          ...prev,
-          isTyping: data.isTyping
-        }));
-      }
-    };
-
-    const onNewMessage = (message: Message) => {
-      console.log("New message received:", message);
-      // Add new message to the messages list
-      setMessages(prev => {
-        if (prev && prev.message) {
-          return {
-            ...prev,
-            message: [...prev.message, message]
-          };
-        }
-        return prev;
-      });
-    };
-
-    socket.on('connect', onConnect);
-    socket.on("user in room", onUserInRoom);
-    socket.on("notification", onNotification);
-    socket.on("typing_indicator", onTypingIndicator);
-    socket.on("new_message", onNewMessage);
-
-    // If socket is already connected, join room immediately
-    if (socket.connected && id) {
-      console.log("Socket already connected, joining room:", id);
-      socket.emit("join_room", id);
-    }
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off("user in room", onUserInRoom);
-      socket.off("notification", onNotification);
-      socket.off("typing_indicator", onTypingIndicator);
-      socket.off("new_message", onNewMessage);
-      
-      // Leave room when component unmounts
-      if (id) {
-        socket.emit("leave_room", id);
-      }
-    };
-  }, [id, conversationMetaData?.message?.metadata.id]); // Added conversationMetaData dependency
+const otherMemberUsername =
+conversationMetaData?.metadata?.otherMember?.username
 
   // 2. Load conversation metadata
   useEffect(() => {
     const loadConversationMetaData = async () => {
       try {
         const response = await getConversationMetaData(String(id));
-        setConversationMetaData(response);
+        setConversationMetaData(response?.message ?? null);
       } catch (error) {
         console.error("Failed to load conversation metadata:", error);
         setError("Failed to load conversation data");
@@ -140,7 +52,7 @@ const ChatPage = () => {
   const loadMessages = async () => {
     console.log(conversationMetaData)
 
-    if (!conversationMetaData?.message?.type) return;
+    if (!conversationMetaData?.type) return;
     
     try {
       const response = await getMessagesInChat(String(id));
@@ -157,7 +69,7 @@ const ChatPage = () => {
   // 3. Load messages when conversation metadata is loaded
   useEffect(() => {
     const loadMessages = async () => {
-      if (!conversationMetaData?.message?.type) return;
+      if (!conversationMetaData?.type) return;
       
       try {
         const response = await getMessagesInChat(String(id));
@@ -259,7 +171,8 @@ const ChatPage = () => {
     <div className='w-full h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100'>
       <ChatHeader 
         status={userStatus} 
-        name={conversationMetaData?.message.metadata.otherMember?.username || "Chat"} 
+        
+        name={otherMemberUsername || "Chat"} 
       /> 
       
       {isLoading ? (
