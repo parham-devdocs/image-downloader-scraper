@@ -1,11 +1,13 @@
 "use client"
 
-import  {  useRef, useState } from 'react'
+import useStream from '@/app/hooks/useStream';
+import { ParamValue } from 'next/dist/server/request/params';
+import  {  useEffect, useRef, useState } from 'react'
 import { BiLock, BiMicrophone } from 'react-icons/bi';
 import { BsUnlock } from 'react-icons/bs';
 import { RiArrowUpSLine } from 'react-icons/ri';
 
-const VoiceRecorderBtn = ({isRecordingHandler}:{isRecordingHandler:(e:boolean)=>void}) => {
+const VoiceRecorderBtn = ({isRecordingHandler,id}:{isRecordingHandler:(e:boolean)=>void,id:ParamValue}) => {
   const [recordingState, setRecordingState] = useState<
   "Idle" | "Holding" | "Locked"
 >("Idle");
@@ -13,10 +15,20 @@ const startY = useRef(0);
 const isRecording = recordingState !== "Idle";
 const isLocked = recordingState === "Locked";
 
+const {   
+  
+  audioChunks,
+  startStreaming,
+  stopStreaming,
+  clearChunks}=useStream(id)
+
+
+
 const handlePointerDown = (e: React.MouseEvent<HTMLButtonElement>) => {
   setRecordingState("Holding");
   isRecordingHandler(true)
   startY.current = e.clientY;
+  startStreaming()
   console.log("Started Recording");
 };
 
@@ -33,6 +45,8 @@ const handlePointerUp = () => {
   if (recordingState === "Locked") return;
 isRecordingHandler(false)
   // If just holding, we stop and send
+  stopStreaming()
+  clearChunks()
   setRecordingState("Idle");
   console.log("Stopped Recording - Sending Audio");
 };

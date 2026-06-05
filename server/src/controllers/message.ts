@@ -5,6 +5,7 @@ import { GroupModel } from "../model/group";
 import { MessageModel } from "../model/message";
 import mongoose from "mongoose";
 import { ChatSchema } from "../model/chat";
+import { AttachmentModel } from "../model/attachment";
 
 
 export async function sendMessageToGroup(
@@ -167,3 +168,60 @@ return
 }
 
 
+
+export  async function sendDocumentInGroup(
+  req: Request<any, any, any, any>,
+  res: Response
+) {
+  try {
+    const currentUser=(req as any).user
+    const {file}=req
+    const {groupId}=req.params
+
+    const group=await GroupModel.findById(groupId)
+    if (!group) {
+      res.status(404).json({message:"group does not exist"})
+    return
+    }
+
+if (!currentUser) {
+  res.status(404).json({message:"user does not exist"})
+return
+}
+
+
+const isMember=  await GroupModel.findOne({ 
+  _id: groupId, 
+  members: { $in: [currentUser] } 
+});
+if (!isMember) {
+  res.status(404).json({message:"user is not a member"})
+return
+}
+const newFile = await AttachmentModel.create({
+  filename: file?.filename,
+  originalName: file?.originalname,
+  mimeType: file?.mimetype,
+  size: file?.size,
+  url: `/uploads/${file?.filename}`
+}); 
+
+const newMessage = await MessageModel.create({
+        sender:currentUser,
+        fileId:newFile._id
+        
+    })
+    const updatedGroup = await GroupModel.updateOne(
+      { _id: groupId },  
+      { 
+        $push: { messages: newMessage._id },
+        $set: { lastMessage: newMessage._id } ,
+
+      }
+    );
+     res.status(201).json(updatedGroup);
+  } catch (error) {
+    console.error("Find users error:", error);
+     res.status(500).json({ message: "Server error" });
+  }
+}

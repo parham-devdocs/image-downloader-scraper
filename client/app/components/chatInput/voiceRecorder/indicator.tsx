@@ -1,3 +1,4 @@
+import useAudioStream from "@/app/hooks/useStream";
 import React, { useEffect, useRef, useState } from "react";
 
 const MicNoiseIndicator = () => {
@@ -6,12 +7,12 @@ const MicNoiseIndicator = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-
+  
   useEffect(() => {
     const start = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-
+console.log(streamRef.current)
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
 

@@ -32,6 +32,8 @@ export interface Message {
     seen:boolean
     createdAt: string;  
     sender:any 
+    type:"text"|"file"|"voice"
+    fileId:any
  
 }
 
@@ -41,6 +43,7 @@ export interface Attachment{
     mimeType:string
     size:number
     url:string
+    duration?:number
 }
 
 export interface Chat {

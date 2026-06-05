@@ -16,6 +16,10 @@ mimeType:String,
 
 size:Number,
 
+duration:{
+    type:Number,
+    required:false
+},
 
 url:String
 

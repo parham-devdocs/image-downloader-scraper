@@ -14,7 +14,7 @@ router.get("/:groupId/membership",getMembershipStatus)
 
 router.post("/:groupId/leave",leaveGroup)
 router.get("/:groupId/messages", getMessagesInGroup);
-router.post("/:groupId/profilePic",  upload.single("profilePic") as any, setProfilePicForGroup);
+router.post("/:groupId/profilePic",  upload.single("profilePictures") as any, setProfilePicForGroup);
 
 router.delete("/:groupId",deleteGroup)
 router.delete("/",deleteallGroups)

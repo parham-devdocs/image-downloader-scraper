@@ -6,17 +6,20 @@ import VoiceRecorder from "./voiceRecorder/voiceRecorder";
 
 import FileUploader from "./FileUploader";
 import VoiceRecorderBtn from "./voiceRecorder/voiceRecorderBtn";
+import { ParamValue } from "next/dist/server/request/params";
 
 type ChatInputProps = {
   inputValue: string;
   onChangeHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
   sendMessage: () => void;
+  id:ParamValue
 };
 
 const ChatInput = ({
   inputValue,
   onChangeHandler,
   sendMessage,
+  id
 }: ChatInputProps) => {
   const [isRecording,setIsRecording]=useState(false)
   return (
@@ -42,7 +45,7 @@ const ChatInput = ({
           >
             <BiSend />
           </button>
-          <VoiceRecorderBtn isRecordingHandler={(e)=>{setIsRecording(e)}}/>
+          <VoiceRecorderBtn isRecordingHandler={(e)=>{setIsRecording(e)}} id={id}/>
         
 
           <button className="mb-1.5 bg-violet-600 text-white rounded-full p-3 cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">

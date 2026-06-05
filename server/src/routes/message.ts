@@ -1,11 +1,14 @@
 
 import { Router} from "express";
 
-import { sendMessageToGroup, DeleteMessages,  sendMessageToChat,markChatMessageAsRead } from "../controllers/message";
+import { sendMessageToGroup, DeleteMessages,  sendMessageToChat,markChatMessageAsRead, sendDocumentInGroup } from "../controllers/message";
+import upload from "../middlewares/multer";
 
 const router = Router();
 
 router.post("/group", sendMessageToGroup);
+router.post("/group/file/:groupId",  upload.single("voice") as any, sendDocumentInGroup);
+
 router.post("/chat", sendMessageToChat);
 
 router.delete("/",DeleteMessages)
