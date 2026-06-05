@@ -169,59 +169,69 @@ return
 
 
 
-export  async function sendDocumentInGroup(
+export async function sendDocumentInGroup(
   req: Request<any, any, any, any>,
   res: Response
 ) {
   try {
-    const currentUser=(req as any).user
-    const {file}=req
-    const {groupId}=req.params
+    const currentUser = (req as any).user;
+    const { file } = req;
+    const { groupId } = req.params;
 
-    const group=await GroupModel.findById(groupId)
+    const group = await GroupModel.findById(groupId);
     if (!group) {
-      res.status(404).json({message:"group does not exist"})
-    return
+      res.status(404).json({ message: "group does not exist" });
+      return;
     }
 
-if (!currentUser) {
-  res.status(404).json({message:"user does not exist"})
-return
-}
+    if (!currentUser) {
+      res.status(404).json({ message: "user does not exist" });
+      return;
+    }
 
+    const isMember = await GroupModel.findOne({ 
+      _id: groupId, 
+      members: { $in: [currentUser] } 
+    });
+    
+    if (!isMember) {
+      res.status(404).json({ message: "user is not a member" });
+      return;
+    }
 
-const isMember=  await GroupModel.findOne({ 
-  _id: groupId, 
-  members: { $in: [currentUser] } 
-});
-if (!isMember) {
-  res.status(404).json({message:"user is not a member"})
-return
-}
-const newFile = await AttachmentModel.create({
-  filename: file?.filename,
-  originalName: file?.originalname,
-  mimeType: file?.mimetype,
-  size: file?.size,
-  url: `/uploads/${file?.filename}`
-}); 
+    // ✅ Determine message type based on MIME type
+    let messageType = 'file'; // default
+    
+    if (file?.mimetype?.startsWith('audio/')) {
+      messageType = 'voice';
+    } 
 
-const newMessage = await MessageModel.create({
-        sender:currentUser,
-        fileId:newFile._id
-        
-    })
+    const newFile = await AttachmentModel.create({
+      filename: file?.filename,
+      originalName: file?.originalname,
+      mimeType: file?.mimetype,
+      size: file?.size,
+      url: `/uploads/${file?.filename}`,
+    });
+
+    const newMessage = await MessageModel.create({
+      sender: currentUser,
+      fileId: newFile._id,
+      type: messageType // ✅ Dynamic type based on file
+    });
+
     const updatedGroup = await GroupModel.updateOne(
       { _id: groupId },  
       { 
         $push: { messages: newMessage._id },
-        $set: { lastMessage: newMessage._id } ,
-
+        $set: { lastMessage: newMessage._id }
       }
     );
-     res.status(201).json(updatedGroup);
+    
+    res.status(201).json(updatedGroup);
+    
   } catch (error) {
-    console.error("Find users error:", error);
-     res.status(500).json({ message: "Server error" });
+    console.error("Upload error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 }

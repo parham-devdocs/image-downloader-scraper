@@ -1,5 +1,6 @@
 import { ChatBubbleType } from "@/types";
 import apiClient from "../axios";
+import { ParamValue } from "next/dist/server/request/params";
 
 export async function postMessage(groupId: string, content?: string) {
   try {
@@ -93,7 +94,7 @@ export async function sendMessageToGroup({content,groupId}:{content:string,group
 
 }
 
-export async function sendVoiceToGroup({groupId,formData}:{groupId:string,formData:FormData}) {
+export async function sendFileToGroup({groupId,formData}:{groupId:ParamValue,formData:FormData}) {
   try {
     const result= await apiClient.post(`message/group/file/${groupId}`,formData , {
       headers: {
