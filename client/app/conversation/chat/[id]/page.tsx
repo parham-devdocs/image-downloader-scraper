@@ -195,6 +195,7 @@ conversationMetaData?.metadata?.otherMember?.username
                 key={m._id} 
                 isOwn={currentUserData?._id === m.sender?._id} 
                 imageAvatarURL={m.imageAvatarURL}
+                type={m.type}
               />
             ))}
             <div ref={messagesEndRef} />

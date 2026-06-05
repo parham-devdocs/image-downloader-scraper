@@ -113,3 +113,24 @@ export async function sendFileToGroup({groupId,formData}:{groupId:ParamValue,for
   }
 
 }
+
+
+export async function sendFileToChat({chatId,formData}:{chatId:ParamValue,formData:FormData}) {
+  try {
+    const result= await apiClient.post(`message/chat/file/${chatId}`,formData , {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+  }})
+    return {
+      status: result.status,
+      message: result.data.messages,
+    }; 
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return {
+      status: 500,
+      message:[]
+    };
+  }
+
+}

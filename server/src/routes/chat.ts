@@ -1,6 +1,8 @@
 
 import { Router, Request, Response } from "express";
 import { JoinChatRoom,ChatList, getMessagesInChat } from "../controllers/chat";
+import upload from "../middlewares/multer";
+import { sendDocumentInChat, sendMessageToChat } from "../controllers/chat";
 
 const router = Router();
 
@@ -9,5 +11,7 @@ const router = Router();
 router.get("/joinChatRoom/:userId", JoinChatRoom);
 router.get("/chatList",ChatList)
 router.get("/:chatId/messages", getMessagesInChat);
+router.post("/file/:chatId",  upload.single("file") as any, sendDocumentInChat);
 
+router.post("/", sendMessageToChat);
 export default router;

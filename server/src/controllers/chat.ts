@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { UserModel } from "../model/user";
 import { ChatSchema } from "../model/chat";
 import { io } from "../socket-server";
+import { AttachmentModel } from "../model/attachment";
+import { MessageModel } from "../model/message";
 
 interface MyQuery {
   targetUser: string;
@@ -49,7 +51,6 @@ export async function JoinChatRoom(
       chat = new ChatSchema({
         members: [targetUser._id,currentUser._id],
         isGroup: false,
-        groupId:null,
         lastMessage: "Started a new conversation",
         name: "Private Chat"
       });
@@ -162,5 +163,116 @@ export async function ChatList(
   } catch (error) {
     console.error("❌ [ChatList] Error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+export async function sendDocumentInChat(
+  req: Request<any, any, any, any>,
+  res: Response
+) {
+  try {
+    const currentUser = (req as any).user;
+    const { file } = req;
+    const { chatId } = req.params;
+
+    const group = await ChatSchema.findById(chatId);
+    if (!group) {
+      res.status(404).json({ message: "group does not exist" });
+      return;
+    }
+
+    if (!currentUser) {
+      res.status(404).json({ message: "user does not exist" });
+      return;
+    }
+
+    const isMember = await ChatSchema.findOne({ 
+      _id: chatId, 
+      members: { $in: [currentUser] } 
+    });
+    
+    if (!isMember) {
+      res.status(404).json({ message: "user is not a member" });
+      return;
+    }
+
+    // ✅ Determine message type based on MIME type
+    let messageType = 'file'; // default
+    
+    if (file?.mimetype?.startsWith('audio/')) {
+      messageType = 'voice';
+    } 
+
+    const newFile = await AttachmentModel.create({
+      filename: file?.filename,
+      originalName: file?.originalname,
+      mimeType: file?.mimetype,
+      size: file?.size,
+      url: `/uploads/${file?.filename}`,
+    });
+
+    const newMessage = await MessageModel.create({
+      sender: currentUser,
+      fileId: newFile._id,
+      type: messageType // ✅ Dynamic type based on file
+    });
+
+    const updatedGroup = await ChatSchema.updateOne(
+      { _id: chatId },  
+      { 
+        $push: { messages: newMessage._id },
+        $set: { lastMessage: newMessage._id }
+      }
+    );
+    
+    res.status(201).json(updatedGroup);
+    
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+export async function sendMessageToChat(
+  req: Request<any, any, any, any>,
+  res: Response
+) {
+  try {
+    const currentUser=(req as any).user
+    const {content,chatId}=req.body
+
+if (!currentUser) {
+  res.status(404).json({message:"user does not exist"})
+return
+}
+if (!content) {
+  res.status(404).json({message:"content does not exist"})
+return
+}
+const isMember=await (ChatSchema as any).isMember(currentUser,chatId)
+console.log({currentUser:currentUser,chatId})
+console.log(isMember)
+if (!isMember) {
+  res.status(404).json({message:"user is not a member"})
+return
+}
+const newMessage = await MessageModel.create({
+  sender:currentUser,
+  content,
+})
+const updatedChat = await ChatSchema.updateOne(
+  { _id: chatId },  
+  { 
+    $push: { messages: newMessage._id },
+    $set: { lastMessage: newMessage._id }  
+  }
+);
+res.status(201).json(updatedChat);
+  } catch (error) {
+    console.error("Find users error:", error);
+     res.status(500).json({ message: "Server error" });
   }
 }

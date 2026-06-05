@@ -55,7 +55,7 @@ export type Attachment={
   export type Message={
     _id:string
     content:string
-
+type:"file" | "voice"| "text"
     sender: User
     imageAvatarURL?:Attachment
     seen:boolean
