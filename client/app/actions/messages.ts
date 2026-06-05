@@ -92,3 +92,23 @@ export async function sendMessageToGroup({content,groupId}:{content:string,group
   }
 
 }
+
+export async function sendVoiceToGroup({groupId,formData}:{groupId:string,formData:FormData}) {
+  try {
+    const result= await apiClient.post(`message/group/file/${groupId}`,formData , {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+  }})
+    return {
+      status: result.status,
+      message: result.data.messages,
+    }; 
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return {
+      status: 500,
+      message:[]
+    };
+  }
+
+}
