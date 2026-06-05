@@ -209,6 +209,7 @@ const ChatPage = () => {
           >
             {messages?.message?.map((m) => (
               <MessageBubble 
+              type={m.type}
                 _id={m._id} 
                 content={m.content} 
                 createdAt={m.createdAt} 
@@ -222,8 +223,8 @@ const ChatPage = () => {
             <div ref={messagesEndRef} />
           </div>
       {isMember ?    
-            <ChatInput inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)}/>
-            : <JoinButton groupId={id as string } loadData={loadMessages}/>
+         <ChatInput type={"group"} inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)} id={id}/>
+         : <JoinButton groupId={id as string } loadData={loadMessages}/>
             }
         </>
       )}

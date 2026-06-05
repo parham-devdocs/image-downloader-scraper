@@ -201,7 +201,7 @@ conversationMetaData?.metadata?.otherMember?.username
             <div ref={messagesEndRef} />
           </div>
 
-         <ChatInput inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)} id={id}/>
+         <ChatInput type={"chat"} inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)} id={id}/>
         </>
       )}
     </div>

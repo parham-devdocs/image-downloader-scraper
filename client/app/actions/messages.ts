@@ -117,7 +117,7 @@ export async function sendFileToGroup({groupId,formData}:{groupId:ParamValue,for
 
 export async function sendFileToChat({chatId,formData}:{chatId:ParamValue,formData:FormData}) {
   try {
-    const result= await apiClient.post(`message/chat/file/${chatId}`,formData , {
+    const result= await apiClient.post(`/chat/file/${chatId}`,formData , {
       headers: {
         'Content-Type': 'multipart/form-data'
   }})

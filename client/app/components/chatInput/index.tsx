@@ -12,6 +12,7 @@ type ChatInputProps = {
   inputValue: string;
   onChangeHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
   sendMessage: () => void;
+  type:"chat"|"group",
   id:ParamValue
 };
 
@@ -19,6 +20,7 @@ const ChatInput = ({
   inputValue,
   onChangeHandler,
   sendMessage,
+  type,
   id
 }: ChatInputProps) => {
   const [isRecording,setIsRecording]=useState(false)
@@ -51,7 +53,7 @@ const ChatInput = ({
           <button className="mb-1.5 bg-violet-600 text-white rounded-full p-3 cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
             <BiCamera />
           </button>
-          <FileUploader />
+          <FileUploader type={type} id={id} />
         </div>
       </div>
     </div>
