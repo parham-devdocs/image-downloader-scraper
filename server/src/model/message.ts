@@ -16,7 +16,7 @@ const messageSchema = new mongoose.Schema<Message>({
         default: "text",
         enum: ["text", "file", "voice"]  // Add enum for validation
     },
-    fileId: {
+    file: {
         type: mongoose.Types.ObjectId,
         required: false,
         ref: "Attachment"
@@ -36,7 +36,7 @@ messageSchema.pre('save', function(next) {
         }
     } 
     else if (this.type === 'file' || this.type === 'voice') {
-        if (!this.fileId) {
+        if (!this.file) {
             new Error(`FileId is required for ${this.type} messages`)
         }
         // Optionally make content not required for file/voice

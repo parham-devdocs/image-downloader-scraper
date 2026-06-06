@@ -12,8 +12,8 @@ router.get("/", findGroups);
 router.get("/:groupId/join",joinGroup)
 router.post("/:groupId/add",addMemberToGroup)
 router.get("/:groupId/membership",getMembershipStatus)
-router.post("/group/file/:groupId",  upload.single("file") as any, sendDocumentInGroup);
-router.post("/group", sendMessageToGroup);
+router.post("/file/:groupId",  upload.single("file") as any, sendDocumentInGroup);
+router.post("/message", sendMessageToGroup);
 
 router.post("/:groupId/leave",leaveGroup)
 router.get("/:groupId/messages", getMessagesInGroup);

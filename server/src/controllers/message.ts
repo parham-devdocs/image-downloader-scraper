@@ -10,7 +10,7 @@ import { AttachmentModel } from "../model/attachment";
 
 
 
-export async function DeleteMessages(
+export async function DeleteMessage(
   req: Request,
   res: Response
 ) {

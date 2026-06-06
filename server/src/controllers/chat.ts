@@ -71,32 +71,36 @@ export async function JoinChatRoom(
 
 
 export async function getMessagesInChat(
-  req: Request<any, any, any,any>,
+  req: Request<any, any, any, any>,
   res: Response
 ) {
   try {
-    const chatId=req.params.chatId
+    const chatId = req.params.chatId
 
     const chat = await ChatSchema.findById(chatId)
-    .select("messages")
-    .populate({
-      path: 'messages', 
-      populate: {
-        path: 'sender',       
-        model: 'User' ,
-        select:"username isAdmin"     
-      }
-    })
-    .exec();
-   if (!chat || chat.length===0) {
-    res.status(404).json({message:[]})
+      .select("messages")
+      .populate({
+        path: 'messages',
+        populate: [
+          {
+            path: 'sender',
+            model: 'User',
+            select: "username isAdmin avatar" // Added avatar for better UI
+          }
+        ]
+      })
+      .exec();
+    
+    if (!chat || chat.messages.length === 0) {
+      res.status(200).json({ messages: [] }) // Changed to 200 and consistent response structure
+      return
+    }
+    
+    res.status(200).json(chat); // Changed to 200 (201 is for creation)
     return
-   }
-     res.status(201).json(chat);
-     return
   } catch (error) {
-    console.error("Find users error:", error);
-     res.status(500).json({ message: "Server error" });
+    console.error("Get messages error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 }
 
@@ -215,7 +219,7 @@ export async function sendDocumentInChat(
 
     const newMessage = await MessageModel.create({
       sender: currentUser,
-      fileId: newFile._id,
+      file: newFile._id,
       type: messageType // ✅ Dynamic type based on file
     });
 
@@ -263,13 +267,15 @@ const newMessage = await MessageModel.create({
   sender:currentUser,
   content,
 })
-const updatedChat = await ChatSchema.updateOne(
-  { _id: chatId },  
+const updatedChat = await ChatSchema.findByIdAndUpdate(
+  chatId,
   { 
     $push: { messages: newMessage._id },
-    $set: { lastMessage: newMessage._id }  
-  }
-);
+    $set: { lastMessage: newMessage._id }
+  },
+  { new: true } 
+)
+
 res.status(201).json(updatedChat);
   } catch (error) {
     console.error("Find users error:", error);

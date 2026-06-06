@@ -60,6 +60,9 @@ type:"file" | "voice"| "text"
     imageAvatarURL?:Attachment
     seen:boolean
     createdAt: string
+    isOwn?:boolean
+    filename?:string
+    size?:string
 
   
   }

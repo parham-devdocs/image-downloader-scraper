@@ -1,5 +1,5 @@
 "use client";
-import {  useRef, useState, PointerEvent, useEffect } from "react";
+import {  useState } from "react";
 import { BiCamera, BiSend } from "react-icons/bi";
 
 import VoiceRecorder from "./voiceRecorder/voiceRecorder";
@@ -14,6 +14,7 @@ type ChatInputProps = {
   sendMessage: () => void;
   type:"chat"|"group",
   id:ParamValue
+  reloadData:()=>void
 };
 
 const ChatInput = ({
@@ -21,7 +22,9 @@ const ChatInput = ({
   onChangeHandler,
   sendMessage,
   type,
-  id
+  id,
+  reloadData
+
 }: ChatInputProps) => {
   const [isRecording,setIsRecording]=useState(false)
   return (
@@ -53,7 +56,7 @@ const ChatInput = ({
           <button className="mb-1.5 bg-violet-600 text-white rounded-full p-3 cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
             <BiCamera />
           </button>
-          <FileUploader type={type} id={id} />
+          <FileUploader reloadData={reloadData} type={type} id={id} />
         </div>
       </div>
     </div>

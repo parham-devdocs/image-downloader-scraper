@@ -7,9 +7,10 @@ interface FileUploaderProps {
   id: ParamValue;  // Optional - only for group chats
   type: "group"|"chat";   // Optional - only for private chats
   onUploadComplete?: (result: any) => void; // Optional callback
+  reloadData:()=>void
 }
 
-const FileUploader = ({  onUploadComplete,type,id }: FileUploaderProps) => {
+const FileUploader = ({  onUploadComplete,type,id,reloadData }: FileUploaderProps) => {
   async function selectFileHandler(e: any) {
     const file = e.target.files[0]
     if (!file) {
@@ -38,7 +39,7 @@ const FileUploader = ({  onUploadComplete,type,id }: FileUploaderProps) => {
       console.error('Neither groupId nor chatId provided');
       return;
     }
-    
+    reloadData()
     console.log('Upload result:', result);
     
     // Call callback if provided

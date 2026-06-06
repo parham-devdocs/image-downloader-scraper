@@ -223,7 +223,7 @@ const ChatPage = () => {
             <div ref={messagesEndRef} />
           </div>
       {isMember ?    
-         <ChatInput type={"group"} inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)} id={id}/>
+         <ChatInput reloadData={loadMessages} type={"group"} inputValue={inputValue} sendMessage={sendMessage} onChangeHandler={(e)=>onChangeHandler(e)} id={id}/>
          : <JoinButton groupId={id as string } loadData={loadMessages}/>
             }
         </>

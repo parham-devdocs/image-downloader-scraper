@@ -33,7 +33,7 @@ export interface Message {
     createdAt: string;  
     sender:any 
     type:"text"|"file"|"voice"
-    fileId:any
+    file:any
  
 }
 

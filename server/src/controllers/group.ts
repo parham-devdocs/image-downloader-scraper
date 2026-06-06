@@ -309,17 +309,24 @@ export async function getMessagesInGroup(
     const groupId = req.params.groupId;
 
     const groupMessages = await GroupModel.findById(groupId)
-      .select("messages")
-      .populate({
-        path: "messages",
-        populate: {
-          path: "sender",
-          model: "User",
-          select: "username isAdmin",
+    .select("messages")
+    .populate({
+      path: 'messages',
+      populate: [
+        {
+          path: 'sender',
+          model: 'User',
+          select: "username isAdmin avatar" 
         },
-      })
-      .select("messages")
-      .exec();
+        {
+          path: 'file', 
+          model: 'Attachment',
+          select: "filename originalName mimeType size url"
+        }
+      ]
+    })
+    .exec();
+  
     if (!groupMessages) {
       res.status(404).json([]);
       return;
@@ -454,21 +461,20 @@ export async function sendMessageToGroup(
       sender: currentUser,
       content,
     });
-    const updatedGroup = await GroupModel.updateOne(
-      { _id: groupId },
-      {
+    const updatedGroup = await GroupModel.findByIdAndUpdate(
+      groupId,
+      { 
         $push: { messages: newMessage._id },
-        $set: { lastMessage: newMessage._id },
-      }
-    );
+        $set: { lastMessage: newMessage._id }
+      },
+      { new: true } 
+    )
     res.status(201).json(updatedGroup);
   } catch (error) {
     console.error("Find users error:", error);
     res.status(500).json({ message: "Server error" });
   }
 }
-
-
 
 export async function sendDocumentInGroup(
   req: Request<any, any, any, any>,
@@ -478,7 +484,7 @@ export async function sendDocumentInGroup(
     const currentUser = (req as any).user;
     const { file } = req;
     const { groupId } = req.params;
-    console.log({groupId})
+    console.log({ groupId });
 
     const group = await GroupModel.findById(groupId);
     if (!group) {
@@ -491,22 +497,22 @@ export async function sendDocumentInGroup(
       return;
     }
 
-    const isMember = await GroupModel.findOne({ 
-      _id: groupId, 
-      members: { $in: [currentUser] } 
+    const isMember = await GroupModel.findOne({
+      _id: groupId,
+      members: { $in: [currentUser] },
     });
-    
+
     if (!isMember) {
       res.status(404).json({ message: "user is not a member" });
       return;
     }
 
     // ✅ Determine message type based on MIME type
-    let messageType = 'file'; // default
-    
-    if (file?.mimetype?.startsWith('audio/')) {
-      messageType = 'voice';
-    } 
+    let messageType = "file"; // default
+
+    if (file?.mimetype?.startsWith("audio/")) {
+      messageType = "voice";
+    }
 
     const newFile = await AttachmentModel.create({
       filename: file?.filename,
@@ -516,26 +522,34 @@ export async function sendDocumentInGroup(
       url: `/uploads/${file?.filename}`,
     });
 
+    // ✅ FIXED: Use 'file' instead of 'fileId' to match schema
     const newMessage = await MessageModel.create({
       sender: currentUser,
-      fileId: newFile._id,
-      type: messageType // ✅ Dynamic type based on file
+      file: newFile._id, // Changed from 'fileId' to 'file'
+      type: messageType,
     });
 
-    const updatedGroup = await GroupModel.updateOne(
-      { _id: groupId },  
-      { 
+    // ✅ FIXED: Properly type the update operation
+    const updatedGroup = await GroupModel.findByIdAndUpdate(
+      { _id: groupId },
+      {
         $push: { messages: newMessage._id },
-        $set: { lastMessage: newMessage._id }
-      }
+        $set: { lastMessage: newMessage._id },
+      },
+      { new: true } // Returns the updated document
     );
-    
-    res.status(201).json(updatedGroup);
-    
+
+    res.status(201).json({
+      success: true,
+      message: "File uploaded successfully",
+      data: {
+        group: updatedGroup,
+        message: newMessage,
+        file: newFile,
+      },
+    });
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({ message: "Server error" });
   }
 }
-
-
