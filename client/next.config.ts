@@ -1,12 +1,7 @@
 
-import bundleAnalyzer from '@next/bundle-analyzer'
-bundleAnalyzer(({
-  enabled: process.env.ANALYZE === 'true',
-}))
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',  // Add this line for Docker optimization
   // your other config options...
 };
 

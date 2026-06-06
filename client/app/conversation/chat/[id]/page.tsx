@@ -47,7 +47,27 @@ const ChatPage = () => {
       loadConversationMetaData();
     }
   }, [id]);
-
+  const loadMessages = async () => {
+    if (!conversationMetaData?.type) return;
+    
+    try {
+      const response = await getMessagesInChat(String(id));
+      console.log("Full response:", response);
+      console.log("Response status:", response?.status);
+      console.log("Response message:", response?.message);
+      console.log("Is message an array?", Array.isArray(response?.message));
+      
+      // ✅ FIX: Accept both 200 and 201 status codes
+      if (response?.status === 200 || response?.status === 201) {
+        setMessages(response);
+        console.log("Messages set successfully:", response.message?.length);
+      }
+    } catch (error) {
+      console.error("Failed to load messages:", error);
+      setError("Failed to load messages");
+    }
+  };
+  
   // Load messages - FIXED VERSION
   useEffect(() => {
     const loadMessages = async () => {
@@ -183,8 +203,7 @@ const ChatPage = () => {
                   isOwn={currentUserData?._id === m.sender?._id} 
                   imageAvatarURL={m.imageAvatarURL}
                   type={m.type}
-                  filename={m.filename}
-                  size={m.size}
+                  file={m.file}
                 />
               ))
             ) : (
@@ -196,7 +215,7 @@ const ChatPage = () => {
           </div>
 
           <ChatInput  
-            reloadData={() => {}} 
+            reloadData={loadMessages} 
             type={"chat"} 
             inputValue={inputValue} 
             sendMessage={sendMessage} 

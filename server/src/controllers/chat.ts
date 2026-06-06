@@ -86,6 +86,10 @@ export async function getMessagesInChat(
             path: 'sender',
             model: 'User',
             select: "username isAdmin avatar" // Added avatar for better UI
+          },
+          {
+            path: 'file',
+            model: 'Attachment',
           }
         ]
       })
