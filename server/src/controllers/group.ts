@@ -382,7 +382,7 @@ export async function setProfilePicForGroup(
       originalName: file.originalname,
       mimeType: file.mimetype,
       size: file.size,
-      url: `/uploads/${file.filename}`,
+      url: `${file.filename}`,
     });
 
     // ✅ Update group with new attachment
@@ -483,6 +483,7 @@ export async function sendDocumentInGroup(
   try {
     const currentUser = (req as any).user;
     const { file } = req;
+    console.log(file)
     const { groupId } = req.params;
     console.log({ groupId });
 
@@ -506,7 +507,19 @@ export async function sendDocumentInGroup(
       res.status(404).json({ message: "user is not a member" });
       return;
     }
-
+    let folder = 'others';
+    
+    // Determine folder based on file type
+    if (file?.mimetype.startsWith('image/')) {
+      folder = 'images';
+    } else if (file?.mimetype.startsWith('audio/')) {
+      folder = 'voices';  // or 'audio'
+    } else if (file?.mimetype === 'application/pdf') {
+      folder = 'documents';
+    } else if (file?.mimetype.includes('word') || file?.mimetype.includes('document')) {
+      folder = 'documents';
+    }
+    
     // ✅ Determine message type based on MIME type
     let messageType = "file"; // default
 
@@ -519,9 +532,9 @@ export async function sendDocumentInGroup(
       originalName: file?.originalname,
       mimeType: file?.mimetype,
       size: file?.size,
-      url: `/uploads/${file?.filename}`,
+      url: `${folder}-${file?.filename}`,
     });
-
+console.log(newFile)
     // ✅ FIXED: Use 'file' instead of 'fileId' to match schema
     const newMessage = await MessageModel.create({
       sender: currentUser,
@@ -553,3 +566,5 @@ export async function sendDocumentInGroup(
     res.status(500).json({ message: "Server error" });
   }
 }
+
+

@@ -6,18 +6,18 @@ import formatTime from '@/app/utils/formatTime'
 
 const TextBubble = ({isOwn,content,createdAt,seen}:{isOwn:boolean,content:string,createdAt:string,seen:boolean}) => {
   return (
-    <div className="flex flex-col max-w-[70%] relative scale-100 starting:scale-0  opacity-100 transition-all duration-700 ease-out starting:opacity-0">
+    <div className="flex flex-col    relative scale-100 starting:scale-0  opacity-100 transition-all duration-700 ease-out starting:opacity-0">
           
     <div
       className={`
-        px-4 py-2
+        px-10 py-2
         rounded-2xl
         text-sm
-        shadow-sm
-        break-words
+        shadow-sm 
+        
         ${
           isOwn
-            ?  "bg-violet-600 text-white rounded-br-md"
+            ?  "bg-violet-600 text-white rounded-br-md text-left"
             :"bg-slate-200 text-slate-900 rounded-bl-md"
         }
       `}

@@ -6,11 +6,13 @@ import chatRoute from "./chat";
 import groupRoute from "./group";
 import messageRoute from "./message";
 import conversationRoute from "./conversation";
+import fileRoute from "./file";
 import { verifyAccessToken } from "../middlewares/verifyToken";
 const router = Router();
 dotenv.config();
 
 router.use("/auth", authRoute);
+router.use("/file",verifyAccessToken(),fileRoute)
 router.use("/user", verifyAccessToken(), userRoute);
 router.use("/chat", verifyAccessToken(), chatRoute);
 router.use("/group", verifyAccessToken(), groupRoute);

@@ -31,7 +31,7 @@ const ChatInput = ({
     <div className="border-t w-full border-gray-200 bg-white/80 backdrop-blur-sm px-4 py-4 ">
       <div className="w-full mx-auto">
         <div className="flex items-center gap-3 w-full">
-          <div className="flex-1 min-w-0">
+          <div className="flex-1">
             {isRecording ? (
               <VoiceRecorder />
             ) : (
@@ -39,7 +39,7 @@ const ChatInput = ({
                 value={inputValue}
                 onChange={onChangeHandler}
                 placeholder="Type a message..."
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 focus:bg-white transition-all duration-200 resize-none"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 focus:bg-white transition-all duration-200 "
               />
             )}
           </div>

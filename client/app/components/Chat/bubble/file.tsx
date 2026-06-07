@@ -3,7 +3,6 @@ import SeenComponent from './seen'
 import formatTime from '@/app/utils/formatTime'
 import { 
   FaFolder, 
-  FaDownload, 
   FaCheck, 
   FaCheckDouble, 
   FaFileAlt, 
@@ -18,7 +17,7 @@ import {
 } from 'react-icons/fa'
 import { MdInsertDriveFile } from 'react-icons/md'
 import Link from 'next/link'
-import { Attachment, Message } from '@/types'
+import {  Message } from '@/types'
 type FileBubbleType= Omit<Message, 'content' | 'type' | 'sender'> & Required<Pick<Message ,"isOwn">>
 const FileBubble = ({ 
   isOwn, 
@@ -41,7 +40,7 @@ const downloadedRef=useRef(false)
 
   // Get file icon based on extension
   const getFileIcon = () => {
-    const extension = file.filename.split('.').pop()?.toLowerCase() || ''
+    const extension = file?.filename.split('.').pop()?.toLowerCase() || ''
     
     const iconMap: { [key: string]: { icon: JSX.Element; color: string } } = {
       pdf: { icon: <FaFilePdf />, color: 'text-red-500' },
@@ -70,7 +69,7 @@ const downloadedRef=useRef(false)
   }
 
   const fileIcon = getFileIcon()
-  const isLargeFile = parseInt(file.size) > 10 * 1024 * 1024 // 10MB
+  const isLargeFile = parseInt(file?.size) > 10 * 1024 * 1024 // 10MB
 
   const handleDownload = async () => {
     setIsDownloading(true)
@@ -82,6 +81,7 @@ const downloadedRef=useRef(false)
 
   return (
     <Link 
+    download={file.url}
     href={file.url}
       className={`flex flex-col max-w-[80%] relative group animate-in fade-in slide-in-from-bottom-2 duration-300 ${
         isOwn ? 'items-end ml-auto' : 'items-start'
@@ -127,11 +127,11 @@ const downloadedRef=useRef(false)
           
           {/* File Info */}
           <div className='flex-1 min-w-0'>
-            <p className='font-semibold truncate mb-1 text-sm' title={file.filename}>
-              {file.filename}
+            <p className='font-semibold truncate mb-1 text-sm' title={file?.filename}>
+              {file?.filename}
             </p>
             <div className='flex items-center gap-2 text-xs opacity-75'>
-              <span className="font-mono">{formatFileSize(file.size)}</span>
+              <span className="font-mono">{formatFileSize(file?.size)}</span>
               {downloadedRef && (
                 <span className='flex items-center gap-1 animate-in fade-in duration-300'>
                   <FaCheckCircle className='text-[10px] text-green-500' />
@@ -193,12 +193,12 @@ const downloadedRef=useRef(false)
       </div>
 
       {/* Timestamp and Status with Enhanced Styling */}
-      {file.createdAt && (
+      {file?.createdAt && (
         <div className={`flex items-center gap-2 mt-1.5 px-1 ${
           isOwn ? 'justify-end' : 'justify-start'
         }`}>
           <span className='text-[10px] font-mono text-gray-400 dark:text-gray-500 transition-opacity duration-200 group-hover:opacity-100 opacity-70'>
-            {formatTime(file.createdAt)}
+            {formatTime(file?.createdAt)}
           </span>
           
           {/* Seen/Read Status for Own Messages with Animation */}
