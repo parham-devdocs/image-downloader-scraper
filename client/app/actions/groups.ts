@@ -4,6 +4,7 @@ import apiClient from "../axios";
 export async function getGroupMembership(groupId: string): Promise<GeneralApiCallResult<MembershipStatus | null> | null> {
   try {
     // ✅ Fixed: Use relative URL, don't hardcode base URL
+    console.log(groupId)
     const response = await apiClient.get<MembershipStatus>(`/group/${groupId}/membership`);
     return { status: response.status, message: response.data };
   } catch (error) {

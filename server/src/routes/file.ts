@@ -9,6 +9,5 @@ const router = Router();
 
 
 
-router.get("/:url",verifyAccessToken(),DownloadFile)
-
+router.get("/:url/:id",verifyAccessToken(),DownloadFile)
 export default router;

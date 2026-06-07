@@ -4,8 +4,10 @@ import { Message } from "@/types";
 import formatTime from "../../utils/formatTime";
 import { LuCheckCheck } from "react-icons/lu";
 import { BiCheck } from "react-icons/bi";
+import TextBubble from "../Chat/bubble/text";
+import FileBubble from "../Chat/bubble/file";
 
-type ChatBubbleProps = Message & { isOwn: boolean };
+type GroupBubbleProps = Message & { isOwn: boolean };
 
 const SeenComponent = ({ seen, isOwn }: { seen: boolean; isOwn: boolean }) => {
   return seen && !isOwn ? (
@@ -23,58 +25,29 @@ const GroupBubble = ({
   content,
   seen,
   sender,
+  type,
+  _id,
+  file,
   isOwn,
   imageAvatarURL,
   createdAt,
-}: ChatBubbleProps) => {
+}: GroupBubbleProps) => {
   return (
     <div className={`w-full flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
       <div className={`flex items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
-        <Avatar url={imageAvatarURL?.url} filename={imageAvatarURL?.filename} />
+        <Avatar  url={imageAvatarURL?.url} filename={imageAvatarURL?.filename} />
 
-        <div className="flex flex-col max-w-[70%] relative scale-100 starting:scale-0  opacity-100 transition-all duration-700 ease-out starting:opacity-0">
-          
-          {/* Sender Name Display */}
-          {!isOwn && sender.username && (
-            <span className="text-xs font-semibold text-slate-500 mb-1 ml-1">
-              {sender.username}
-            </span>
-          )}
+        <div className={`w-full overflow-x-hidden  flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
+      
+      <div className={`flex max-w-[70%] items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
 
-          <div
-            className={`
-              px-4 py-2
-              rounded-2xl
-              text-sm
-              shadow-sm
-              break-words
-              ${
-                isOwn
-                  ? "bg-violet-600 text-white rounded-br-md"
-                  : "bg-slate-200 text-slate-900 rounded-bl-md"
-              }
-            `}
-          >
-            {content}
-          </div>
+        {/* <Avatar    url={imageAvatarURL.url} filename={imageAvatarURL.filename} /> */}
+       {type === "text" && <TextBubble isOwn={isOwn as boolean}  seen={seen} createdAt={createdAt} content={content} /> }
+       {type==="file" && <FileBubble _id={_id}  id={_id} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
 
-          {createdAt && (
-            <span
-              className={`text-[11px] mt-1 ${
-                isOwn ? "text-slate-400" : "text-right text-slate-400"
-              }`}
-            >
-              {formatTime(createdAt)}
-            </span>
-          )}
+      </div>
 
-          {/* Seen Status (positioned relative to the bubble) */}
-          {!isOwn && (
-            <div className="absolute -right-6 bottom-5">
-              <SeenComponent isOwn={isOwn} seen={seen} />
-            </div>
-          )}
-        </div>
+    </div>
       </div>
     </div>
   );

@@ -45,13 +45,13 @@ export type RegisterState = {
 
 export type Attachment={
   _id?:string
-  filename:string,
-  originalName:string,
+  filename?:string,
+  originalName?:string,
   mimeType?:string,
-  size:string,
-  url:string
-  createdAt:string
-  updatedAt:string
+  size?:string,
+  url?:string
+  createdAt?:string
+  updatedAt?:string
   
 }
   
@@ -64,7 +64,7 @@ type:"file" | "voice"| "text"
     seen:boolean
     createdAt: string
     isOwn?:boolean
-    file:Attachment
+    file?:Attachment
  
 
   

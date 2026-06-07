@@ -184,9 +184,10 @@ export async function sendDocumentInChat(
     const currentUser = (req as any).user;
     const { file } = req;
     const { chatId } = req.params;
+    
 
-    const group = await ChatSchema.findById(chatId);
-    if (!group) {
+    const chat = await ChatSchema.findById(chatId);
+    if (!chat) {
       res.status(404).json({ message: "group does not exist" });
       return;
     }
@@ -196,52 +197,74 @@ export async function sendDocumentInChat(
       return;
     }
 
-    const isMember = await ChatSchema.findOne({ 
-      _id: chatId, 
-      members: { $in: [currentUser] } 
+    const isMember = await ChatSchema.findOne({
+      _id: chatId,
+      members: { $in: [currentUser] },
     });
-    
+
     if (!isMember) {
       res.status(404).json({ message: "user is not a member" });
       return;
     }
-
-    // ✅ Determine message type based on MIME type
-    let messageType = 'file'; // default
+    let folder = 'others';
     
-    if (file?.mimetype?.startsWith('audio/')) {
-      messageType = 'voice';
-    } 
+    // Determine folder based on file type
+    if (file?.mimetype.startsWith('image/')) {
+      folder = 'images';
+    } else if (file?.mimetype.startsWith('audio/')) {
+      folder = 'voices';  // or 'audio'
+    } else if (file?.mimetype === 'application/pdf') {
+      folder = 'documents';
+    } else if (file?.mimetype.includes('word') || file?.mimetype.includes('document')) {
+      folder = 'documents';
+    }
+    
+    // ✅ Determine message type based on MIME type
+    let messageType = "file"; // default
+
+    if (file?.mimetype?.startsWith("audio/")) {
+      messageType = "voice";
+    }
 
     const newFile = await AttachmentModel.create({
       filename: file?.filename,
       originalName: file?.originalname,
       mimeType: file?.mimetype,
       size: file?.size,
-      url: `/uploads/${file?.filename}`,
+      url: `${folder}-${file?.filename}`,
     });
-
+    // ✅ FIXED: Use 'file' instead of 'fileId' to match schema
     const newMessage = await MessageModel.create({
       sender: currentUser,
-      file: newFile._id,
-      type: messageType // ✅ Dynamic type based on file
+      file: newFile._id, // Changed from 'fileId' to 'file'
+      type: messageType,
     });
 
-    const updatedGroup = await ChatSchema.updateOne(
-      { _id: chatId },  
-      { 
+    // ✅ FIXED: Properly type the update operation
+    const updatedGroup = await ChatSchema.findByIdAndUpdate(
+      { _id: chatId },
+      {
         $push: { messages: newMessage._id },
-        $set: { lastMessage: newMessage._id }
-      }
+        $set: { lastMessage: newMessage._id },
+      },
+      { new: true } // Returns the updated document
     );
-    
-    res.status(201).json(updatedGroup);
-    
+
+    res.status(201).json({
+      success: true,
+      message: "File uploaded successfully",
+      data: {
+        group: updatedGroup,
+        message: newMessage,
+        file: newFile,
+      },
+    });
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({ message: "Server error" });
   }
 }
+
 
 
 export async function sendMessageToChat(

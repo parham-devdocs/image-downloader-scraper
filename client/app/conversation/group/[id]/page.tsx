@@ -211,6 +211,7 @@ const ChatPage = () => {
               <MessageBubble 
               type={m.type}
                 _id={m._id} 
+                file={m.file}
                 content={m.content} 
                 createdAt={m.createdAt} 
                 seen={m.seen} 
