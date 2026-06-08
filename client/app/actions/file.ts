@@ -1,9 +1,9 @@
 import apiClient from "../axios"
 
-export async function DownloadFile(url:string,onProgress:(progress:number)=>void) {
+export async function DownloadFile(url:string,id,onProgress:(progress:number)=>void) {
     try {
       // console.log({data:response.data})
-      const response = await apiClient.get( `http://localhost:5000/api/file/${url}`,{
+      const response = await apiClient.get( `http://localhost:5000/api/file/${url}/${id}`,{
         method: 'GET',
         url: url,
         responseType: "stream",

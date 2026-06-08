@@ -6,8 +6,9 @@ import { LuCheckCheck } from "react-icons/lu";
 import { BiCheck } from "react-icons/bi";
 import TextBubble from "../Chat/bubble/text";
 import FileBubble from "../Chat/bubble/file";
+import unknownPerson from "../../../public/person.jpeg";
 
-type GroupBubbleProps = Message & { isOwn: boolean };
+type GroupBubbleProps = Message & { isOwn: boolean ,groupId:string };
 
 const SeenComponent = ({ seen, isOwn }: { seen: boolean; isOwn: boolean }) => {
   return seen && !isOwn ? (
@@ -26,8 +27,8 @@ const GroupBubble = ({
   seen,
   sender,
   type,
-  _id,
   file,
+  groupId,
   isOwn,
   imageAvatarURL,
   createdAt,
@@ -35,15 +36,15 @@ const GroupBubble = ({
   return (
     <div className={`w-full flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
       <div className={`flex items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
-        <Avatar  url={imageAvatarURL?.url} filename={imageAvatarURL?.filename} />
+        <Avatar link={`/profile/${sender._id}`}  url={imageAvatarURL && imageAvatarURL.url && imageAvatarURL?.url  }  />
 
         <div className={`w-full overflow-x-hidden  flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
-      
+      {!isOwn && <p>{sender.username}</p>}
       <div className={`flex max-w-[70%] items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
 
         {/* <Avatar    url={imageAvatarURL.url} filename={imageAvatarURL.filename} /> */}
        {type === "text" && <TextBubble isOwn={isOwn as boolean}  seen={seen} createdAt={createdAt} content={content} /> }
-       {type==="file" && <FileBubble _id={_id}  id={_id} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
+       {type==="file" && <FileBubble     id={groupId} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
 
       </div>
 

@@ -187,6 +187,9 @@ const ChatPage = () => {
   if (error) {
     return <div className="text-red-500 text-center p-4">Error: {error}</div>;
   }
+  if (!conversationMetaData || !conversationMetaData.metadata ) {
+    return <div className="text-red-500 text-center p-4">group meta data not loaded</div>;
+  }
 
   return (
     <div className='w-full h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100'>
@@ -207,8 +210,9 @@ const ChatPage = () => {
             ref={chatContainerRef}
             className='flex-1 overflow-y-auto px-4 py-6 space-y-3'
           >
-            {messages?.message?.map((m) => (
+            { messages?.message?.map((m) => (
               <MessageBubble 
+              groupId={conversationMetaData?.metadata.id}
               type={m.type}
                 _id={m._id} 
                 file={m.file}

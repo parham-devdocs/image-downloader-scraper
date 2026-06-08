@@ -27,7 +27,7 @@ export async function getGroupList(): Promise<GeneralApiCallResult<ChatInfoRespo
 // ✅ Fixed: Changed to POST method (correct HTTP verb for joining)
 export async function joinGroup(groupId: string): Promise<GeneralApiCallResult<any> | null> {
   try {
-    const response = await apiClient.post(`/group/${groupId}/join`);
+    const response = await apiClient.get(`/group/${groupId}/join`);
     console.log({ data: response.data });
     return { status: response.status, message: response.data };
   } catch (error: any) {

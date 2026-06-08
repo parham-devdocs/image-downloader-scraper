@@ -15,13 +15,13 @@ import { MdInsertDriveFile } from 'react-icons/md'
 import { Message } from '@/types'
 import FileDownloadBtn from './fileDownloadBtn'
 
-type FileBubbleType = Omit<Message, 'content' | 'type' | 'sender'> & Required<Pick<Message, "isOwn">> & {id:string}
+type FileBubbleType = Omit<Message, 'content' | 'type'|"_id" | 'sender'> & Required<Pick<Message, "isOwn">> & {id:string}
 
 const FileBubble = ({ 
   isOwn, 
   seen,
   file,
-  id
+ id
 }: FileBubbleType) => {
   
   const [isDownloading, setIsDownloading] = useState(false)
@@ -50,7 +50,7 @@ console.log({isOwn,seen,file,id})
 
   // Get file icon based on extension
   const getFileIcon = () => {
-    const extension = file.filename.split('.').pop()?.toLowerCase() || ''
+    const extension = file?.filename?.split('.').pop()?.toLowerCase() || ''
     
     const iconMap: { [key: string]: { icon: JSX.Element; color: string } } = {
       pdf: { icon: <FaFilePdf />, color: 'text-red-500' },
@@ -119,7 +119,7 @@ console.log({isOwn,seen,file,id})
   // If download failed, show error message (optional - can return null to hide completely)
   if (downloadFailed && !isDownloading) {
     return (
-      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} my-2`}>
+      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} my-2 `}>
         <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-2 px-3 max-w-[250px]">
           <div className="flex items-center gap-2">
             <FaExclamationTriangle className="text-red-500 text-sm" />
@@ -154,10 +154,9 @@ console.log({isOwn,seen,file,id})
           rounded-2xl
           text-sm
           shadow-md
-          transition-all
-          duration-300
+          
           hover:shadow-xl
-          hover:scale-[1.02]
+          scale-100 starting:scale-0  opacity-100 transition-all duration-700 ease-out starting:opacity-0
          ${
           isOwn
             ?  "bg-violet-600 text-white rounded-br-md text-left"

@@ -1,3 +1,5 @@
+import { StaticImageData } from "next/image";
+
 export type RegisterState = {
     success: boolean;
     data?: any;
@@ -43,16 +45,16 @@ export type RegisterState = {
   }
 
 
-export type Attachment={
-  _id?:string
-  filename?:string,
-  originalName?:string,
-  mimeType?:string,
-  size?:string,
-  url?:string
-  createdAt?:string
-  updatedAt?:string
-  
+// types.ts
+export type Attachment = {
+  _id?: string
+  filename: string 
+  originalName: string
+  mimeType: string
+  size: string
+  url: StaticImageData | string | null | undefined  // Allow null/undefined
+  createdAt?: string
+  updatedAt?: string
 }
   
   export type Message={
@@ -112,9 +114,9 @@ type:"file" | "voice"| "text"
   export type ConversationMetaData={
     type: 'group' | "chat",
     metadata: {
-        id?: string,
-        name?:string,
-        description?: string,
+        id: string,
+        name:string,
+        description: string,
         avatarURL?: Attachment,
         admin: string,
         members: [],
