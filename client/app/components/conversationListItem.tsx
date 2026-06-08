@@ -11,7 +11,7 @@ const ChatItem = ({type, name, avatarURL, lastMessage,_id,description ,unreadCou
       href={`/conversation/${type}/${_id}`}
       >
 
-    <Avatar url={avatarURL} filename="chat or group " />
+    <Avatar url={avatarURL}  />
 
       <div className="flex-1 ml-4 min-w-0">
         <div className="flex justify-between items-center">

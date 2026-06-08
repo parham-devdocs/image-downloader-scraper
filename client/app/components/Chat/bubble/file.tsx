@@ -1,3 +1,4 @@
+// FileBubble.tsx - Updated version
 import React, { JSX, useRef, useState } from 'react'
 import SeenComponent from './seen'
 import formatTime from '@/app/utils/formatTime'
@@ -8,35 +9,36 @@ import {
   FaFileVideo, 
   FaFileAudio, 
   FaFileArchive,
- 
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaCheckCircle
 } from 'react-icons/fa'
 import { MdInsertDriveFile } from 'react-icons/md'
-import { Message } from '@/types'
+import { Attachment, Message } from '@/types'
 import FileDownloadBtn from './fileDownloadBtn'
 
-type FileBubbleType = Omit<Message, 'content' | 'type'|"_id" | 'sender'> & Required<Pick<Message, "isOwn">> & {id:string}
 
 const FileBubble = ({ 
   isOwn, 
   seen,
   file,
- id
-}: FileBubbleType) => {
+  username,
+  id
+}: {isOwn:boolean,seen:boolean,file:Attachment,username:string,id:string}) => {
   
-  const [isDownloading, setIsDownloading] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [hasError, setHasError] = useState(false)
-  const [downloadFailed, setDownloadFailed] = useState(false)
-  const downloadedRef = useRef(false)
-console.log({isOwn,seen,file,id})
+  const [downloadError, setDownloadError] = useState(false)
+  const [isFileDownloaded, setIsFileDownloaded] = useState(false)
+  const [isRetrying, setIsRetrying] = useState(false)
+  
+  console.log({isOwn, seen, file, id})
+  
   // Validate file object
   const isValidFile = file && file.url && file.filename && file.size
   
   // If file is invalid or missing, don't render anything
   if (!isValidFile) {
     console.error('Invalid file data:', file)
-    return null // Return nothing, no empty space
+    return null
   }
 
   const formatFileSize = (bytes: string) => {
@@ -81,61 +83,48 @@ console.log({isOwn,seen,file,id})
   const fileIcon = getFileIcon()
   const isLargeFile = parseInt(file.size) > 10 * 1024 * 1024 // 10MB
 
-  const handleDownload = async () => {
-    setIsDownloading(true)
-    setHasError(false)
-    setDownloadFailed(false)
-    
-    try {
-      // Your actual download logic here
-      // For example: await downloadFile(file.url)
-      
-      // Simulate download success/failure for demo
-      const success = await simulateDownload()
-      
-      if (success) {
-        downloadedRef.current = true
-      } else {
-        setDownloadFailed(true)
-      }
-    } catch (error) {
-      setDownloadFailed(true)
-      setHasError(true)
-    } finally {
-      setIsDownloading(false)
+  const handleDownloadStateChange = (isDownloaded: boolean, hasError?: boolean) => {
+    setIsFileDownloaded(isDownloaded)
+    if (hasError) {
+      setDownloadError(true)
+    } else {
+      setDownloadError(false)
     }
   }
 
-  // Simulate download for demo (remove in production)
-  const simulateDownload = (): Promise<boolean> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Random success/failure for demo
-        resolve(Math.random() > 0.3)
-      }, 1500)
-    })
+  const handleRetry = () => {
+    setIsRetrying(true)
+    setDownloadError(false)
+    // The retry will be handled by the FileDownloadBtn when clicked
+    setTimeout(() => setIsRetrying(false), 1000)
   }
 
-  // If download failed, show error message (optional - can return null to hide completely)
-  if (downloadFailed && !isDownloading) {
-    return (
-      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} my-2 `}>
-        <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-2 px-3 max-w-[250px]">
-          <div className="flex items-center gap-2">
-            <FaExclamationTriangle className="text-red-500 text-sm" />
-            <span className="text-xs text-red-700 dark:text-red-300">
-              Failed to load {file.filename}
-            </span>
-            <button 
-              onClick={handleDownload}
-              className="text-xs text-red-600 dark:text-red-400 underline hover:no-underline"
-            >
-              Retry
-            </button>
-          </div>
+  // Show different UI based on download state
+  const renderFileStatus = () => {
+    if (isFileDownloaded) {
+      return (
+        <div className="mt-2 flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+          <FaCheckCircle className="text-xs" />
+          <span>Downloaded</span>
         </div>
-      </div>
-    )
+      )
+    }
+    
+    if (downloadError) {
+      return (
+        <div className="mt-2 flex items-center gap-2">
+          <button
+            onClick={handleRetry}
+            className="text-xs text-red-600 dark:text-red-400 underline hover:no-underline"
+            disabled={isRetrying}
+          >
+            {isRetrying ? 'Retrying...' : 'Download failed - Click to retry'}
+          </button>
+        </div>
+      )
+    }
+    
+    return null
   }
 
   return (
@@ -146,7 +135,9 @@ console.log({isOwn,seen,file,id})
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      
+        {!isOwn && username && (
+        <p className="text-[11px] text-slate-500 mb-1 ml-2">{username}</p>
+      )}
       {/* Bubble Container */}
       <div
         className={`
@@ -154,64 +145,63 @@ console.log({isOwn,seen,file,id})
           rounded-2xl
           text-sm
           shadow-md
-          
           hover:shadow-xl
-          scale-100 starting:scale-0  opacity-100 transition-all duration-700 ease-out starting:opacity-0
-         ${
-          isOwn
-            ?  "bg-violet-600 text-white rounded-br-md text-left"
-            :"bg-slate-200 text-slate-900 rounded-bl-md"
-        }
-          ${hasError ? 'opacity-60' : ''}
+          scale-100 starting:scale-0 opacity-100 transition-all duration-700 ease-out starting:opacity-0
+          ${downloadError ? 'opacity-90' : ''}
+          ${
+            isOwn
+              ? "bg-violet-600 text-white rounded-br-md text-left"
+              : "bg-slate-200 text-slate-900 rounded-bl-md"
+          }
         `}
       >
-        
+       
         {/* File Content */}
         <div className='flex items-center gap-4 min-w-[220px]'>
           {/* Animated File Icon */}
           <div className={`
             relative text-3xl transition-transform duration-300
-            ${isHovered ? 'scale-110 rotate-6' : 'scale-100 rotate-0'}
-            ${fileIcon.color}
+            ${isHovered && !isFileDownloaded ? 'scale-110 rotate-6' : 'scale-100 rotate-0'}
+            ${isFileDownloaded ? 'opacity-70' : fileIcon.color}
           `}>
             {fileIcon.icon}
-            {isLargeFile && (
+            {isLargeFile && !isFileDownloaded && (
               <span className="absolute -top-2 -right-2 text-[8px] bg-red-500 text-white rounded-full px-1">
                 BIG
+              </span>
+            )}
+            {isFileDownloaded && (
+              <span className="absolute -top-2 -right-2 text-[10px] bg-green-500 text-white rounded-full p-0.5">
+                <FaCheckCircle className="text-[8px]" />
               </span>
             )}
           </div>
           
           {/* File Info */}
           <div className='flex-1 min-w-0'>
-            <p className='font-semibold truncate mb-1 text-sm' title={file.filename}>
+            <p className={`font-semibold truncate mb-1 text-sm ${isFileDownloaded ? 'opacity-70' : ''}`} title={file.filename}>
               {file.filename}
             </p>
             <div className='flex items-center gap-2 text-xs opacity-75'>
               <span className="font-mono">{formatFileSize(file.size)}</span>
-              
-              {hasError && !isDownloading && (
-                <span className='flex items-center gap-1'>
-                  <FaExclamationTriangle className='text-[10px] text-red-500' />
-                  <span className="text-red-500">Failed</span>
-                </span>
+              {isFileDownloaded && (
+                <span className="text-green-500 dark:text-green-400">✓</span>
               )}
             </div>
           </div>
           
-          {/* Download Button with Animation */}
-         <FileDownloadBtn url={file.url} isOwn={isOwn} onError={() => setHasError(true)} id={id}/> 
+          {/* Download Button */}
+          <FileDownloadBtn 
+            url={file.url} 
+            isOwn={isOwn} 
+            onError={() => setDownloadError(true)} 
+            id={id}
+            onDownloadStateChange={handleDownloadStateChange}
+          /> 
         </div>
 
-        {/* Progress Bar (Optional - for downloads) */}
-        {isDownloading && (
-          <div className="mt-2 h-1 bg-white/20 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-white/60 rounded-full animate-progress"
-              style={{ width: '60%' }}
-            />
-          </div>
-        )}
+        {/* Status Message */}
+        {renderFileStatus()}
       </div>
 
       {/* Timestamp and Status */}
@@ -222,13 +212,11 @@ console.log({isOwn,seen,file,id})
           <span className='text-[10px] font-mono text-gray-400 dark:text-gray-500 transition-opacity duration-200 group-hover:opacity-100 opacity-70'>
             {formatTime(file.createdAt)}
           </span>
-          
-       
         </div>
       )}
       
       {/* Seen Component for Others' Messages */}
-      {!isOwn &&  <div className=" absolute bottom-5 right-1"><SeenComponent isOwn={isOwn} seen={seen}/></div>} 
+      {!isOwn && <div className="absolute bottom-5 right-1"><SeenComponent isOwn={isOwn} seen={seen}/></div>} 
 
       {/* Ripple Effect on Hover for Own Messages */}
       {isOwn && isHovered && (

@@ -1,29 +1,41 @@
 // FileDownloadBtn.tsx
 import UseDownloadFile from '@/app/hooks/useDownloadFile'
-import React from 'react'
-import { FaCloudDownloadAlt, FaFolder, FaSpinner } from 'react-icons/fa'
+import React, { useEffect } from 'react'
+import { FaCloudDownloadAlt, FaFolder, FaSpinner, FaExclamationTriangle } from 'react-icons/fa'
 
-// Fix the type definition - make id optional or remove it if not needed
 interface FileDownloadBtnProps {
     isOwn: boolean
     url: string
-    type?: "chat" | "group"  // Made optional with default
-    id?: string  // Made optional since it might not be needed
+    type?: "chat" | "group"
+    id: string
     onError?: () => void
+    onDownloadStateChange?: (isDownloaded: boolean, hasError?: boolean) => void // New callback
 }
 
 const FileDownloadBtn = ({ 
     isOwn, 
-    url, 
-    type = "chat",  // Default value
-    id,  // Keep but don't pass to hook if not needed
-    onError 
+    url,
+    id,
+    onError,
+    onDownloadStateChange 
 }: FileDownloadBtnProps) => {
-    // Don't pass id to UseDownloadFile if it doesn't use it
-    const { isDownloading, getFile, loadingPercentage, isDownloaded } = UseDownloadFile({ 
+    const { 
+        isDownloading, 
+        loadingPercentage, 
+        isDownloaded, 
+        getFile,
+        error // Assuming your hook returns error state
+    } = UseDownloadFile({ 
         url, 
-        id: id || url  // Provide fallback if id is required
+        groupOrChatId: id   
     })
+    
+    // Notify parent of state changes
+    useEffect(() => {
+        if (onDownloadStateChange) {
+            onDownloadStateChange(isDownloaded, !!error)
+        }
+    }, [isDownloaded, error, onDownloadStateChange])
     
     async function handleDownload() {
         try {
@@ -35,10 +47,27 @@ const FileDownloadBtn = ({
         }
     }
     
+    // Show error state
+    if (error && !isDownloading) {
+        return (
+            <button
+                onClick={handleDownload}
+                className={`
+                    flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                    transition-all duration-300
+                    bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400
+                    hover:bg-red-200 dark:hover:bg-red-900
+                `}
+            >
+                <FaExclamationTriangle className='text-sm' />
+            </button>
+        )
+    }
+    
     return (
         <div className="relative flex items-center gap-2">
             {/* Download Button - Show when not downloaded */}
-            {!isDownloaded && (
+            {!isDownloaded && !error && (
                 <button
                     onClick={handleDownload}
                     disabled={isDownloading}
@@ -62,7 +91,7 @@ const FileDownloadBtn = ({
             )}
             
             {/* Downloaded Badge - Show when downloaded */}
-            {isDownloaded && (
+            {isDownloaded && !error && (
                 <div className={`
                     flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
                     transition-all duration-300

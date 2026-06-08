@@ -1,33 +1,20 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
 import apiClient from "../axios"
+import useCheckDownloadedFiles from "./useCheckDownloadedFiles";
+import { AxiosError } from "axios";
 
 interface DownloadOptions {
     url: string;
     onProgress?: (progress: number) => void;
-    id:string
+    groupOrChatId: string
 }
 
-const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
-    const [isDownloaded, setIsDownloaded] = useState(false)
+const UseDownloadFile = ({ url, onProgress, groupOrChatId }: DownloadOptions) => {
     const [loadingPercentage, setLoadingPercentage] = useState(0)
     const [isDownloading, setIsDownloading] = useState(false)
-
-    // Check localStorage for existing downloads on mount
-    useEffect(() => {
-        const checkDownloadedStatus = () => {
-            const downloadedFiles = localStorage.getItem('downloadedFiles')
-            if (downloadedFiles) {
-                const files = JSON.parse(downloadedFiles)
-                if (files.includes(url)) {
-                    setIsDownloaded(true)
-                }
-            }
-        }
-        
-        checkDownloadedStatus()
-    }, [url])
-
+    const { saveToLocalStorage, isDownloaded, setIsDownloaded } = useCheckDownloadedFiles({ url })
+const [error,setError]=useState(null)
     async function downloadFile(): Promise<void> {
         if (isDownloaded) {
             console.log('File already downloaded')
@@ -41,10 +28,21 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
             // Get the filename from URL
             const fileName = url.split('/').pop() || 'download'
             
-            // Make the request with blob response type
-            console.log({url,id})
-
-            const response = await apiClient.get(`http://localhost:5000/api/file/${url}/${id}` )
+            // IMPORTANT: Set responseType to 'blob'
+            const response = await apiClient.get(
+                `http://localhost:5000/api/file/${url}/${groupOrChatId}`,
+                {
+                    responseType: 'blob', // This is critical for binary data
+                    onDownloadProgress: (progressEvent) => {
+                        if (progressEvent.total) {
+                            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                            setLoadingPercentage(percent);
+                            if (onProgress) onProgress(percent);
+                        }
+                    }
+                }
+            )
+            
             // Create blob link to download
             const blob = new Blob([response.data])
             const downloadUrl = window.URL.createObjectURL(blob)
@@ -58,17 +56,11 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
             
             // Mark as downloaded
             setIsDownloaded(true)
+            saveToLocalStorage()
             
-            // Save to localStorage
-            const downloadedFiles = localStorage.getItem('downloadedFiles')
-            const files = downloadedFiles ? JSON.parse(downloadedFiles) : []
-            if (!files.includes(url)) {
-                files.push(url)
-                localStorage.setItem('downloadedFiles', JSON.stringify(files))
-            }
-            
-        } catch (error) {
+        } catch (error:any) {
             console.error('Download error:', error)
+            setError(error)
             throw error
         } finally {
             setIsDownloading(false)
@@ -76,7 +68,7 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
         }
     }
 
-    // Optional: Stream download for large files
+    // Stream download version (better for large files)
     async function downloadFileAsStream(): Promise<void> {
         if (isDownloaded) {
             console.log('File already downloaded')
@@ -89,7 +81,7 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
         try {
             const fileName = url.split('/').pop() || 'download'
             
-            const response = await fetch(`http://localhost:5000/api/file/${encodeURIComponent(url)}`)
+            const response = await fetch(`http://localhost:5000/api/file/${url}/${groupOrChatId}`)
             
             if (!response.ok) throw new Error('Download failed')
             
@@ -121,20 +113,16 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
             const link = document.createElement('a')
             link.href = downloadUrl
             link.download = fileName
+            document.body.appendChild(link)
             link.click()
+            document.body.removeChild(link)
             URL.revokeObjectURL(downloadUrl)
             
             setIsDownloaded(true)
+            saveToLocalStorage()
             
-            // Save to localStorage
-            const downloadedFiles = localStorage.getItem('downloadedFiles')
-            const files = downloadedFiles ? JSON.parse(downloadedFiles) : []
-            if (!files.includes(url)) {
-                files.push(url)
-                localStorage.setItem('downloadedFiles', JSON.stringify(files))
-            }
-            
-        } catch (error) {
+        } catch (error:any) {
+            setError(error)
             console.error('Stream download error:', error)
         } finally {
             setIsDownloading(false)
@@ -148,9 +136,8 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
         } catch (error) {
             console.error('Failed to get file:', error)
         }
-    }, [url])
+    }, [url, groupOrChatId])
 
-    // Clear downloaded status
     const clearDownloadedStatus = useCallback(() => {
         const downloadedFiles = localStorage.getItem('downloadedFiles')
         if (downloadedFiles) {
@@ -163,11 +150,14 @@ const UseDownloadFile = ({ url, onProgress,id }: DownloadOptions) => {
 
     return {
         getFile,
-        downloadFileAsStream, // Export stream version if needed
+        downloadFileAsStream,
         isDownloading,
         loadingPercentage,
         isDownloaded,
-        clearDownloadedStatus
+        clearDownloadedStatus,
+        setIsDownloaded,
+        setIsDownloading,
+        error
     }
 }
 

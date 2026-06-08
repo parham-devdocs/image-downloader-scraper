@@ -39,12 +39,10 @@ const GroupBubble = ({
         <Avatar link={`/profile/${sender._id}`}  url={imageAvatarURL && imageAvatarURL.url && imageAvatarURL?.url  }  />
 
         <div className={`w-full overflow-x-hidden  flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
-      {!isOwn && <p>{sender.username}</p>}
       <div className={`flex max-w-[70%] items-end gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
 
-        {/* <Avatar    url={imageAvatarURL.url} filename={imageAvatarURL.filename} /> */}
-       {type === "text" && <TextBubble isOwn={isOwn as boolean}  seen={seen} createdAt={createdAt} content={content} /> }
-       {type==="file" && <FileBubble     id={groupId} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
+       {type === "text" && <TextBubble username={sender.username} isOwn={isOwn as boolean}  seen={seen} createdAt={createdAt} content={content} /> }
+       {type==="file" && <FileBubble  username={sender.username}    id={groupId} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
 
       </div>
 

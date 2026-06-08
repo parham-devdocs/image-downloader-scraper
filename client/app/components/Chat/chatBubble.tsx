@@ -8,8 +8,7 @@ import FileBubble from "./bubble/file";
 
  
 
-const ChatBubble = ({ content,seen,isOwn, imageAvatarURL,file ,createdAt ,type,_id }: Message ) => {
-console.log({type,file})
+const ChatBubble = ({ content,seen,isOwn,file ,createdAt ,type,_id }: Message ) => {
   return (
     <div className={`w-full overflow-x-hidden  flex ${isOwn ? "justify-end" : "justify-start"} my-8`}>
       
@@ -17,7 +16,7 @@ console.log({type,file})
 
         {/* <Avatar    url={imageAvatarURL.url} filename={imageAvatarURL.filename} /> */}
        {type === "text" && <TextBubble isOwn={isOwn as boolean}  seen={seen} createdAt={createdAt} content={content} /> }
-       {type==="file" && <FileBubble _id={_id}  id={_id} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
+       {type==="file" && <FileBubble    id={_id} file={file} isOwn={isOwn as boolean} seen={seen} createdAt={createdAt}/>}
 
       </div>
 
